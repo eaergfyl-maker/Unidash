@@ -1,0 +1,29 @@
+# AI assistant / planning files: local only, never push
+CLAUDE.md
+GEMINI.md
+SESSION.md
+FRAMEWORK_SETUP_INSTRUCTIONS.md
+TEAM_STEP_BY_STEP_INSTRUCTIONS.md
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# Secrets
+.env
+.env.*
+
+# Runtime data
+db.sqlite3
+campus_data.json
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

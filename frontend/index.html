@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SyncFlow · Presentation Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/assets/css/custom.css" />
+</head>
+<body class="bg-slate-950 text-slate-100 h-screen flex flex-col">
+  <header class="flex items-center justify-between px-5 py-3 border-b border-slate-800">
+    <div>
+      <h1 class="text-lg font-bold">Sync<span class="text-cyan-400">Flow</span></h1>
+      <p class="text-xs text-slate-400">Campus virtual queue · global cart · Sync-Fire kitchen timing</p>
+    </div>
+    <nav class="flex gap-2 text-sm">
+      <a href="/" class="px-3 py-1.5 rounded bg-cyan-500 text-slate-950 font-semibold">Split screen</a>
+      <a href="/student/" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700">Student</a>
+      <a href="/vendor/" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700">Vendor KDS</a>
+      <a href="/admin/" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700">Admin desk</a>
+      <a href="/docs" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700">API docs</a>
+    </nav>
+  </header>
+
+  <!-- Left: student phone. Right: Stall A and Stall B kitchen boards, live. -->
+  <main class="flex-1 grid grid-cols-1 lg:grid-cols-[440px_1fr] min-h-0">
+    <iframe src="/student/" class="w-full h-full border-r border-slate-800" title="Student app"></iframe>
+    <div class="grid grid-rows-2 min-h-0">
+      <iframe src="/vendor/?shop=tokyo-bento&embed=1" class="w-full h-full border-b border-slate-800" title="Tokyo Bento KDS"></iframe>
+      <iframe src="/vendor/?shop=brewlab&embed=1" class="w-full h-full" title="BrewLab KDS"></iframe>
+    </div>
+  </main>
+</body>
+</html>

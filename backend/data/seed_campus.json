@@ -1,0 +1,78 @@
+{
+  "campus": {
+    "name": "Demo University Campus",
+    "currency": "USD"
+  },
+  "shops": [
+    {
+      "id": "tokyo-bento",
+      "name": "Tokyo Bento Bowl",
+      "location": "Canteen 1",
+      "category": "Food",
+      "prep_range_minutes": [12, 15],
+      "walk_minutes": 4,
+      "image": null,
+      "menu": [
+        { "id": "tb-teriyaki", "name": "Teriyaki Chicken Rice Bowl", "price": 6.50, "prep_minutes": 14, "category": "Food", "image": null },
+        { "id": "tb-salmon",   "name": "Salmon Sashimi Don",          "price": 8.50, "prep_minutes": 12, "category": "Food", "image": null },
+        { "id": "tb-gyoza",    "name": "Gyoza 6pcs",                  "price": 4.00, "prep_minutes": 8,  "category": "Quick Bites", "image": null }
+      ]
+    },
+    {
+      "id": "brewlab",
+      "name": "BrewLab Artisan Coffee",
+      "location": "Library Block",
+      "category": "Coffee",
+      "prep_range_minutes": [2, 4],
+      "walk_minutes": 2,
+      "image": null,
+      "menu": [
+        { "id": "bl-spanish-latte", "name": "Iced Spanish Latte",     "price": 4.20, "prep_minutes": 3, "category": "Coffee", "image": null },
+        { "id": "bl-matcha-cloud",  "name": "Matcha Cloud Cold Brew", "price": 4.80, "prep_minutes": 3, "category": "Coffee", "image": null },
+        { "id": "bl-croissant",     "name": "Butter Croissant",       "price": 2.80, "prep_minutes": 2, "category": "Quick Bites", "image": null }
+      ]
+    },
+    {
+      "id": "green-garden",
+      "name": "Green Garden Salad & Wraps",
+      "location": "Student Hub",
+      "category": "Food",
+      "prep_range_minutes": [5, 7],
+      "walk_minutes": 3,
+      "image": null,
+      "menu": [
+        { "id": "gg-caesar-wrap", "name": "Grilled Chicken Caesar Wrap", "price": 5.50, "prep_minutes": 6, "category": "Food", "image": null },
+        { "id": "gg-quinoa-bowl", "name": "Quinoa Protein Bowl",         "price": 6.20, "prep_minutes": 7, "category": "Food", "image": null }
+      ]
+    }
+  ],
+  "services": [
+    {
+      "id": "academic-services",
+      "name": "Academic Services & Exam Counter",
+      "location": "Admin Block Level 2",
+      "options": [
+        { "id": "as-mc",        "name": "Medical Leave (MC) Submission & Verification",  "avg_service_minutes": 5 },
+        { "id": "as-timetable", "name": "Timetable Clash & Credit Transfer Consultation", "avg_service_minutes": 10 }
+      ]
+    },
+    {
+      "id": "it-helpdesk",
+      "name": "Campus IT Helpdesk",
+      "location": "Library Ground Floor",
+      "options": [
+        { "id": "it-portal",  "name": "Student Portal / Wi-Fi Access Support", "avg_service_minutes": 6 },
+        { "id": "it-license", "name": "Lab Software License Check",            "avg_service_minutes": 4 }
+      ]
+    }
+  ],
+  "admin_queue_seed": [
+    { "counter_id": "academic-services", "option_id": "as-mc",        "student_name": "Aisha Rahman", "matric_no": "A21CS0142", "inquiry": "MC for 3 Nov, missed CS101 lab" },
+    { "counter_id": "academic-services", "option_id": "as-timetable", "student_name": "Daniel Lim",   "matric_no": "A22EE0077", "inquiry": "Replacement class clashes with MATH204" },
+    { "counter_id": "it-helpdesk",       "option_id": "it-portal",    "student_name": "Priya Nair",   "matric_no": "A23IT0310", "inquiry": "Cannot log in to campus Wi-Fi" }
+  ],
+  "sample_timetable_notices": [
+    "REPLACEMENT CLASS - CS101 Data Structures\nTue, 17-Nov-2026 | 1:30 pm - 3:30 pm\nVenue: Lecture Hall 3",
+    "Tue, 17-Nov-2026 | 11:00 am - 1:00 pm (MATH204)\nTue, 17-Nov-2026 | 1:30 pm - 3:30 pm (CS101)"
+  ]
+}

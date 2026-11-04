@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SyncFlow · Admin Desk</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/assets/css/custom.css" />
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+  <header class="flex items-center justify-between px-5 py-3 border-b border-slate-800">
+    <h1 class="font-bold">🏛️ University Service Desk <span class="text-xs text-slate-400 font-normal">Virtual queue terminal</span></h1>
+    <select id="counter" class="bg-slate-800 rounded px-3 py-1.5 text-sm"></select>
+  </header>
+
+  <main class="grid lg:grid-cols-[1fr_340px] gap-4 p-5">
+    <section>
+      <div class="flex items-center gap-4 mb-4">
+        <div class="rounded-2xl bg-slate-800 px-6 py-4 glow-cyan">
+          <p class="text-xs text-slate-400">Now serving</p>
+          <p id="now-serving" class="text-4xl font-bold text-cyan-300">--</p>
+        </div>
+        <button id="call-next" class="px-5 py-3 rounded-xl bg-cyan-500 text-slate-950 font-bold">Call Next Ticket</button>
+      </div>
+      <table class="w-full text-sm">
+        <thead class="text-left text-xs uppercase text-slate-400">
+          <tr><th class="py-2">Ticket</th><th>Student</th><th>Matric no.</th><th>Inquiry</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody id="queue"></tbody>
+      </table>
+    </section>
+
+    <!-- Walk-in / student join form -->
+    <aside class="rounded-2xl bg-slate-900 border border-slate-800 p-4 h-fit">
+      <h2 class="font-semibold mb-3">Add student to queue</h2>
+      <form id="join-form" class="space-y-2 text-sm">
+        <select name="option_id" id="option" class="w-full bg-slate-800 rounded px-3 py-2"></select>
+        <input name="student_name" required placeholder="Student name" class="w-full bg-slate-800 rounded px-3 py-2" />
+        <input name="matric_no" required placeholder="Matric no." class="w-full bg-slate-800 rounded px-3 py-2" />
+        <input name="inquiry" placeholder="Inquiry (optional)" class="w-full bg-slate-800 rounded px-3 py-2" />
+        <button class="w-full py-2 rounded bg-slate-700 hover:bg-slate-600 font-semibold">Join queue</button>
+      </form>
+    </aside>
+  </main>
+  <script src="/admin/admin.js"></script>
+</body>
+</html>
