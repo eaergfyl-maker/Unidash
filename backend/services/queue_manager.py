@@ -170,6 +170,17 @@ class QueueManager:
         ticket.status = status
         return ticket
 
+    # ---------- demo helpers ----------
+    def reset(self) -> None:
+        """Wipe all orders and tickets and re-seed the admin queue, for clean demo reruns."""
+        self.orders.clear()
+        self.sub_tickets.clear()
+        self.admin_tickets.clear()
+        self._order_seq = itertools.count(8801)
+        self._sub_seq = itertools.count(1)
+        self._admin_seq.clear()
+        self.seed_admin_queue()
+
     # ---------- background tick loop ----------
     async def _tick_loop(self) -> None:
         while True:
