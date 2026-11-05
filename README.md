@@ -17,6 +17,9 @@ pip install -r requirements.txt
 python run.py
 ```
 
+PNG and JPG timetable uploads require Tesseract OCR on the server's `PATH`.
+Run `tesseract --version` in the same terminal before starting the server.
+
 | Page | URL |
 | :--- | :--- |
 | Presentation hub (split screen) | http://localhost:8000/ |
