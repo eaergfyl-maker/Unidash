@@ -17,6 +17,10 @@ pip install -r requirements.txt
 python run.py
 ```
 
+PNG and JPG timetable uploads require Tesseract OCR on the machine running
+the server. Make sure `tesseract --version` works in the same terminal you
+use to start the server. PDF timetable uploads work without Tesseract.
+
 | Page | URL |
 | :--- | :--- |
 | Presentation hub (split screen) | http://localhost:8000/ |
