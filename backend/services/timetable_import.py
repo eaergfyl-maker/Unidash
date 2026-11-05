@@ -56,19 +56,27 @@ def _ocr_text(image_path):
 
 def _ocr_slots(text):
     # In the school layout, the year may wrap below the first line of a row.
-    row_start = re.compile(r"\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),?\s+(\d{1,2}\s*-\s*[A-Za-z]{3}\s*-)\s*(\d{4})?", re.I)
+    row_start = re.compile(
+        r"\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun),?\s+([\dO]{1,2})(\s*-\s*[A-Za-z]{3}\s*-)\s*(\d{4})?",
+        re.I,
+    )
     text = re.split(r"\bLegend\b", text, maxsplit=1, flags=re.I)[0]
     rows = list(row_start.finditer(text))
     for index, row in enumerate(rows):
         end = rows[index + 1].start() if index + 1 < len(rows) else len(text)
         content = text[row.end():end]
-        year = row[2] or re.search(r"(?m)^\s*(\d{4})\b", content)
+        wrapped_year = re.search(r"(?m)^\s*(\d{4})\b", content)
+        year = row[4] or (wrapped_year[1] if wrapped_year else None)
         times = CLOCK.findall(content)
         if not year or len(times) != 2:
             raise ValueError(f"Check the date and times in the row starting with {row[0]!r}.")
         room, module = ROOM.search(content), MODULE.search(content)
-        yield _slot(row[1] + (year if isinstance(year, str) else year[1]), times,
-                    room[0] if room else None, module[0] if module else None)
+        day_number = row[2].upper().replace("O", "0")
+        slot = _slot(day_number + row[3] + year, times,
+                     room[0] if room else None, module[0] if module else None)
+        if datetime.fromisoformat(slot.date).strftime("%a").lower() != row[1].lower():
+            raise ValueError("A timetable date and weekday disagree. Try a clearer screenshot.")
+        yield slot
 
 
 def _pdf_slots(path):
