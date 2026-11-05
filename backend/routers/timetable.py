@@ -25,23 +25,28 @@ def parse(req: ParseRequest):
 
 @router.post("/import")
 def import_schedule(file: UploadFile):
-    """Read a school timetable PDF and return its classes and same-day breaks."""
-    if Path(file.filename or "").suffix.lower() != ".pdf":
-        raise HTTPException(status_code=415, detail="Choose a school timetable PDF.")
+    """Read a school timetable PDF or screenshot and return its classes and breaks."""
+    suffix = Path(file.filename or "").suffix.lower()
+    signatures = {".pdf": b"%PDF-", ".png": b"\x89PNG\r\n\x1a\n",
+                  ".jpg": b"\xff\xd8\xff", ".jpeg": b"\xff\xd8\xff"}
+    if suffix not in signatures:
+        raise HTTPException(status_code=415, detail="Choose a timetable PDF, PNG, or JPG.")
 
     max_bytes = 5 * 1024 * 1024
     content = file.file.read(max_bytes + 1)
     if len(content) > max_bytes:
-        raise HTTPException(status_code=413, detail="Choose a PDF under 5 MB.")
-    if not content.startswith(b"%PDF-"):
-        raise HTTPException(status_code=422, detail="The file is not a readable PDF.")
+        raise HTTPException(status_code=413, detail="Choose a timetable file no larger than 5 MB.")
+    if not content.startswith(signatures[suffix]):
+        raise HTTPException(status_code=422, detail="The file contents do not match its extension.")
 
     try:
         with TemporaryDirectory() as folder:
-            path = Path(folder) / "timetable.pdf"
+            path = Path(folder) / f"timetable{suffix}"
             path.write_bytes(content)
             classes = import_timetable(path)
-    except (ValueError, PDFSyntaxError) as exc:
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except PDFSyntaxError as exc:
         raise HTTPException(
             status_code=422,
             detail="Could not read the timetable. Try the original school PDF export.",
