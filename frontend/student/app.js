@@ -190,29 +190,100 @@ function resetToCatalog() {
 }
 
 // ---------- schedule sync (Person 3) ----------
-async function parseNotice() {
-  const text = $("#notice").value.trim();
-  if (!text) return;
-  const out = $("#gap-result");
+async function showBreak(out, bw, label, importedBreak) {
+  const recs = await api(`/timetable/recommendations?max_prep_minutes=${bw.max_prep_minutes}&class_label=${encodeURIComponent(label)}`);
+  state.breakWindow = bw;
+  const colour = { SAFE: "text-green-400", TIGHT: "text-amber-300", HIGH: "text-red-400" };
+  const destination = importedBreak
+    ? `${esc(importedBreak.date)}${importedBreak.next_room ? ` · Next class in ${esc(importedBreak.next_room)}` : ""} · `
+    : "";
+  const timing = importedBreak
+    ? `Allow ${bw.walk_buffer_minutes} min to reach class. Shop estimates include the walk to each shop.`
+    : `After a ${bw.walk_buffer_minutes} min walk you have <b>${bw.max_prep_minutes} min</b> for food.`;
+  out.innerHTML = `
+    <p class="mb-2">${destination}Break <b>${esc(bw.start)}–${esc(bw.end)}</b> (${bw.break_minutes} min). ${timing}</p>
+    ${recs.map((r) => `<p class="text-xs ${colour[r.risk]}">• ${esc(r.shop_name)}: ${esc(r.message)}</p>`).join("")}`;
+}
+
+async function readSchedule(action, out = $("#gap-result")) {
+  const buttons = [$("#parse-btn"), $("#upload-timetable-btn")];
+  if (buttons.some((button) => button.disabled)) return;
+  buttons.forEach((button) => { button.disabled = true; });
+  state.breakWindow = null;
   out.classList.remove("hidden");
   out.textContent = "Reading your schedule...";
   try {
+    await action(out);
+  } catch (error) {
+    out.textContent = `Error: ${error.message}`;
+  } finally {
+    buttons.forEach((button) => { button.disabled = false; });
+  }
+}
+
+async function parseNotice() {
+  const text = $("#notice").value.trim();
+  if (!text) return;
+  await readSchedule(async (out) => {
     const res = await api("/timetable/parse", { method: "POST", body: JSON.stringify({ text }) });
     if (!res.break_window) {
       out.textContent = "Couldn't find a class time in that text.";
       return;
     }
-    state.breakWindow = res.break_window;
-    const bw = res.break_window;
     const label = res.slots.at(-1)?.label || "your next class";
-    const recs = await api(`/timetable/recommendations?max_prep_minutes=${bw.max_prep_minutes}&class_label=${encodeURIComponent(label)}`);
-    const colour = { SAFE: "text-green-400", TIGHT: "text-amber-300", HIGH: "text-red-400" };
-    out.innerHTML = `
-      <p class="mb-2">Break <b>${bw.start}–${bw.end}</b> (${bw.break_minutes} min). After a ${bw.walk_buffer_minutes} min walk you have <b>${bw.max_prep_minutes} min</b> for food.</p>
-      ${recs.map((r) => `<p class="text-xs ${colour[r.risk]}">• ${esc(r.shop_name)}: ${esc(r.message)}</p>`).join("")}`;
-  } catch (e) {
-    out.textContent = `Error: ${e.message}`;
-  }
+    await showBreak(out, res.break_window, label);
+  });
+}
+
+async function uploadTimetable(event) {
+  event.preventDefault();
+  const file = $("#timetable-file").files[0];
+  if (!file) return;
+  await readSchedule(async (out) => {
+    const body = new FormData();
+    body.append("file", file);
+    const { slots, breaks } = await api("/timetable/import", { method: "POST", headers: {}, body });
+    out.textContent = `Imported ${slots.length} ${slots.length === 1 ? "class" : "classes"}.`;
+    if (!breaks.length) {
+      out.append(" No breaks between classes on the same day.");
+      return;
+    }
+
+    const label = document.createElement("label");
+    label.className = "block my-2";
+    label.textContent = "Choose a break";
+    const select = document.createElement("select");
+    select.className = "block w-full mt-1 rounded bg-slate-900 p-2";
+    for (const [index, gap] of breaks.entries()) {
+      const { start, end } = gap.break_window;
+      select.add(new Option(`${gap.date} · ${start}–${end}`, index));
+    }
+    label.append(select);
+    const result = document.createElement("div");
+    out.append(label, result);
+
+    const showSelectedBreak = () => {
+      const gap = breaks[select.selectedIndex];
+      const classLabel = gap.next_room ? `class in ${gap.next_room}` : "your next class";
+      return showBreak(result, gap.break_window, classLabel, gap);
+    };
+    select.addEventListener("change", async () => {
+      select.disabled = true;
+      try {
+        await readSchedule(showSelectedBreak, result);
+      } finally {
+        select.disabled = false;
+      }
+    });
+    select.disabled = true;
+    try {
+      await showSelectedBreak();
+    } catch (error) {
+      result.textContent = `Error: ${error.message}`;
+    } finally {
+      select.disabled = false;
+    }
+  });
 }
 
 async function loadSample() {
@@ -239,6 +310,7 @@ $("#cart-bar").addEventListener("click", () => {
 $("#close-cart").addEventListener("click", () => $("#cart-drawer").classList.add("hidden"));
 $("#checkout-btn").addEventListener("click", checkout);
 $("#parse-btn").addEventListener("click", parseNotice);
+$("#timetable-upload").addEventListener("submit", uploadTimetable);
 $("#load-sample").addEventListener("click", loadSample);
 
 (async function init() {
