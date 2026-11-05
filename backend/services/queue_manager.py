@@ -79,6 +79,7 @@ class QueueManager:
         order = MasterOrder(
             id=order_id,
             student_name=req.student_name,
+            student_id=req.student_id,
             created_at=now,
             target_ready_at=schedule["target_ready_at"],
             total=round(total, 2),
