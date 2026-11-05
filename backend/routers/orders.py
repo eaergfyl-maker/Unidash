@@ -6,13 +6,17 @@ from backend.services.queue_manager import queue_manager
 router = APIRouter(prefix="/api/order", tags=["orders"])
 
 
-@router.post("/checkout", response_model=MasterOrder)
+@router.post(
+    "/checkout",
+    response_model=MasterOrder,
+    responses={422: {"description": "Validation error: empty cart, bad quantity, or unknown shop/item"}},
+)
 def checkout(req: CheckoutRequest):
     """Split a multi-shop cart into one MasterOrder + one SubTicket per shop, timed by Sync-Fire."""
     try:
         return queue_manager.checkout(req)
     except ValueError as e:
-        raise HTTPException(400, str(e)) from e
+        raise HTTPException(422, str(e)) from e
 
 
 @router.get("/{order_id}/status", response_model=MasterOrder)

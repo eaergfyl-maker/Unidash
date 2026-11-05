@@ -79,6 +79,7 @@ class QueueManager:
         order = MasterOrder(
             id=order_id,
             student_name=req.student_name,
+            student_id=req.student_id,
             created_at=now,
             target_ready_at=schedule["target_ready_at"],
             total=round(total, 2),
@@ -168,6 +169,17 @@ class QueueManager:
         ticket = self.admin_tickets[ticket_id]
         ticket.status = status
         return ticket
+
+    # ---------- demo helpers ----------
+    def reset(self) -> None:
+        """Wipe all orders and tickets and re-seed the admin queue, for clean demo reruns."""
+        self.orders.clear()
+        self.sub_tickets.clear()
+        self.admin_tickets.clear()
+        self._order_seq = itertools.count(8801)
+        self._sub_seq = itertools.count(1)
+        self._admin_seq.clear()
+        self.seed_admin_queue()
 
     # ---------- background tick loop ----------
     async def _tick_loop(self) -> None:

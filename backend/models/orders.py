@@ -19,7 +19,8 @@ class CartItem(BaseModel):
 
 class CheckoutRequest(BaseModel):
     student_name: str = "Demo Student"
-    items: list[CartItem]
+    student_id: str | None = None
+    items: list[CartItem] = Field(min_length=1)
 
 
 class SubTicketLine(BaseModel):
@@ -48,6 +49,7 @@ class SubTicket(BaseModel):
 class MasterOrder(BaseModel):
     id: str
     student_name: str
+    student_id: str | None = None
     created_at: datetime
     target_ready_at: datetime
     total: float

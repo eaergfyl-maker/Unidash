@@ -18,7 +18,7 @@ def join_admin_queue(req: JoinQueueRequest):
     try:
         return queue_manager.join_admin_queue(req)
     except ValueError as e:
-        raise HTTPException(400, str(e)) from e
+        raise HTTPException(422, str(e)) from e
 
 
 @router.post("/admin/{counter_id}/call-next", response_model=AdminQueueTicket | None)
@@ -43,5 +43,5 @@ def ticket_action(ticket_id: str, action: TicketAction):
         if ticket_id in queue_manager.admin_tickets:
             return queue_manager.set_admin_status(ticket_id, QueueStatus(status))
     except ValueError as e:
-        raise HTTPException(400, f"Invalid status '{action.status}' for {ticket_id}") from e
+        raise HTTPException(422, f"Invalid status '{action.status}' for {ticket_id}") from e
     raise HTTPException(404, f"Ticket '{ticket_id}' not found")

@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from backend.config import settings
-from backend.routers import orders, queues, shops, timetable
+from backend.routers import demo, orders, queues, shops, timetable
 from backend.services.queue_manager import queue_manager
 
 
@@ -27,7 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for r in (shops.router, orders.router, queues.router, timetable.router):
+for r in (shops.router, orders.router, queues.router, timetable.router, demo.router):
     app.include_router(r)
 
 
