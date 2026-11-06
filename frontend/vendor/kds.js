@@ -24,6 +24,7 @@ osc.stop(now + i * 0.15 + 0.3);
 const params = new URLSearchParams(location.search);
 let shops = [];
 let currentShop = params.get("shop");
+let seenCooking = null;
 
 async function api(path, options = {}) {
   const res = await fetch(API + path, { headers: { "Content-Type": "application/json" }, ...options });
@@ -68,6 +69,9 @@ async function refresh() {
   if (!currentShop) return;
   try {
     const tickets = await api(`/queue/vendor/${currentShop}`);
+    const cookingIds = tickets.filter((t) => t.status === "COOKING").map((t) => t.id);
+    if (seenCooking && cookingIds.some((id) => !seenCooking.includes(id))) chime();
+    seenCooking = cookingIds;
     for (const col of ["STAGED", "COOKING", "READY"]) {
       const list = tickets.filter((t) => t.status === col);
       $(`#col-${col}`).innerHTML = list.length ? list.map(ticketCard).join("") : `<p class="text-xs text-slate-600">No tickets</p>`;
@@ -86,6 +90,7 @@ document.addEventListener("click", (e) => {
   const tab = e.target.closest("[data-shop]");
   if (tab) {
     currentShop = tab.dataset.shop;
+    seenCooking = null;
     history.replaceState(null, "", `?shop=${currentShop}`);
     renderTabs();
     refresh();
