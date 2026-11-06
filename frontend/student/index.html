@@ -56,7 +56,26 @@
         <button id="checkout-btn" class="mt-4 w-full py-3 rounded-xl bg-green-400 text-slate-950 font-bold">Campus Pay · Checkout</button>
       </div>
     </div>
+
+    <!-- Student identity modal -->
+    <div id="identity-modal" class="hidden absolute inset-0 bg-black/60 flex items-center justify-center p-6 z-10">
+      <div class="w-full bg-slate-900 rounded-2xl p-5 fade-in">
+        <h2 class="font-bold mb-3">Confirm your details</h2>
+          <label class="block text-xs text-slate-400 mb-1">Full name</label>
+          <input id="student-name-input" type="text" placeholder="e.g. Eashwar Singh"
+            class="w-full mb-3 text-sm rounded-lg bg-slate-800 border border-slate-700 p-2 focus:outline-none focus:border-cyan-500" />
+          <label class="block text-xs text-slate-400 mb-1">Student ID</label>
+          <input id="student-id-input" type="text" placeholder="e.g. STU-9921"
+            class="w-full mb-4 text-sm rounded-lg bg-slate-800 border border-slate-700 p-2 focus:outline-none focus:border-cyan-500" />
+          <div class="flex gap-2">
+            <button id="identity-cancel" class="flex-1 py-2 rounded-lg bg-slate-800 text-sm disabled:opacity-50">Cancel</button>
+            <button id="identity-confirm" class="flex-1 py-2 rounded-lg bg-green-400 text-slate-950 font-semibold text-sm disabled:opacity-60">Confirm & Pay</button>
+          </div>
+      </div>
+    </div>
   </div>
+
+
   <script src="/student/app.js"></script>
 </body>
 </html>

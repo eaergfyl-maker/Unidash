@@ -12,6 +12,8 @@ const state = {
   orderId: null,
   pollTimer: null,
   secPerMin: 60, // from /api/health; lower = faster demo clock
+  student: { name: "", id: "" }, // captured via identity modal before checkout
+  checkingOut: false, // true while a checkout request is in flight
 };
 
 async function api(path, options = {}) {
@@ -110,17 +112,34 @@ function renderCartDrawer() {
     .join("");
 }
 
+// NEW: open the identity modal instead of checking out directly
+function openIdentityModal() {
+  $("#student-name-input").value = state.student.name;
+  $("#student-id-input").value = state.student.id;
+  $("#identity-modal").classList.remove("hidden");
+}
+
 async function checkout() {
-  const btn = $("#checkout-btn");
-  btn.disabled = true;
+  // Keep the modal open while the request runs so the loading state is visible,
+  // and lock every button that could start a second checkout.
+  if (state.checkingOut) return;
+  state.checkingOut = true;
+  const btn = $("#identity-confirm");
+  const lockIds = ["#identity-confirm", "#identity-cancel", "#checkout-btn"];
+  lockIds.forEach((id) => ($(id).disabled = true));
   btn.textContent = "Processing Campus Pay...";
   try {
     const order = await api("/order/checkout", {
       method: "POST",
-      body: JSON.stringify({ student_name: "Demo Student", items: state.cart }),
+      body: JSON.stringify({
+        student_name: state.student.name,
+        student_id: state.student.id,
+        items: state.cart,
+      }),
     });
     state.orderId = order.id;
     state.cart = [];
+    $("#identity-modal").classList.add("hidden");
     $("#cart-drawer").classList.add("hidden");
     $("#catalog-view").classList.add("hidden");
     $("#tracker-view").classList.remove("hidden");
@@ -130,8 +149,9 @@ async function checkout() {
   } catch (e) {
     alert(`Checkout failed: ${e.message}`);
   } finally {
-    btn.disabled = false;
-    btn.textContent = "Campus Pay · Checkout";
+    lockIds.forEach((id) => ($(id).disabled = false));
+    btn.textContent = "Confirm & Pay";
+    state.checkingOut = false;
   }
 }
 
@@ -308,7 +328,26 @@ $("#cart-bar").addEventListener("click", () => {
   $("#cart-drawer").classList.remove("hidden");
 });
 $("#close-cart").addEventListener("click", () => $("#cart-drawer").classList.add("hidden"));
-$("#checkout-btn").addEventListener("click", checkout);
+
+// CHANGED: checkout-btn now opens the identity modal instead of calling checkout() directly
+$("#checkout-btn").addEventListener("click", openIdentityModal);
+
+// NEW: identity modal wiring
+$("#identity-cancel").addEventListener("click", () => {
+  if (state.checkingOut) return;
+  $("#identity-modal").classList.add("hidden");
+});
+$("#identity-confirm").addEventListener("click", async () => {
+  const name = $("#student-name-input").value.trim();
+  const id = $("#student-id-input").value.trim();
+  if (!name || !id) {
+    alert("Please enter your name and student ID.");
+    return;
+  }
+  state.student = { name, id };
+  await checkout();
+});
+
 $("#parse-btn").addEventListener("click", parseNotice);
 $("#timetable-upload").addEventListener("submit", uploadTimetable);
 $("#load-sample").addEventListener("click", loadSample);
