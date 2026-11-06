@@ -101,6 +101,47 @@ def test_vendor_can_mark_ticket_ready_early(client):
     assert [t["id"] for t in board] == [latte["id"]]
 
 
+def test_early_ready_fires_staged_siblings_and_updates_target(client):
+    order = checkout(client, [BENTO, LATTE]).json()
+    tickets = {t["shop_id"]: t for t in order["sub_tickets"]}
+    assert tickets["brewlab"]["status"] == "STAGED"
+    old_target = datetime.fromisoformat(order["target_ready_at"])
+
+    # Bento kitchen finishes ~14 min early: the held latte must fire right away.
+    before = datetime.now()
+    r = client.post(f"/api/queue/ticket/{tickets['tokyo-bento']['id']}/action", json={"status": "READY"})
+    after = datetime.now()
+    assert r.status_code == 200
+
+    updated = client.get(f"/api/order/{order['id']}/status").json()
+    subs = {t["shop_id"]: t for t in updated["sub_tickets"]}
+    latte = subs["brewlab"]
+    assert subs["tokyo-bento"]["status"] == "READY"
+    assert latte["status"] == "COOKING"
+    assert latte["seconds_until_fire"] == 0
+    fire_at = datetime.fromisoformat(latte["fire_at"])
+    ready_at = datetime.fromisoformat(latte["ready_at"])
+    assert before <= fire_at <= after
+    assert ready_at - fire_at == timedelta(seconds=queue_manager_seconds(3))
+
+    new_target = datetime.fromisoformat(updated["target_ready_at"])
+    assert new_target == ready_at          # latest sibling ready_at
+    assert new_target < old_target         # student sees the earlier pickup time
+    assert updated["status"] == "COOKING"  # order waits for the latte
+
+
+def test_early_ready_does_not_touch_cooking_siblings(client):
+    order = checkout(client, [BENTO, LATTE]).json()
+    tickets = {t["shop_id"]: t for t in order["sub_tickets"]}
+    bento_before = tickets["tokyo-bento"]   # already COOKING
+    client.post(f"/api/queue/ticket/{tickets['brewlab']['id']}/action", json={"status": "READY"})
+    bento_after = next(t for t in client.get(f"/api/order/{order['id']}/status").json()["sub_tickets"]
+                       if t["shop_id"] == "tokyo-bento")
+    assert bento_after["status"] == "COOKING"
+    assert bento_after["fire_at"] == bento_before["fire_at"]
+    assert bento_after["ready_at"] == bento_before["ready_at"]
+
+
 def test_ticket_action_errors(client):
     order = checkout(client, [BENTO]).json()
     sid = order["sub_tickets"][0]["id"]
