@@ -49,3 +49,18 @@ body { font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; }
 
 .fade-in { animation: fade-in 0.25s ease-out; }
 @keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* KDS: ticket that just moved STAGED -> COOKING pulses red for a few seconds */
+.just-fired { animation: fire-glow 1s ease-in-out infinite; border-color: rgb(239 68 68) !important; }
+@keyframes fire-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.0); }
+  50%      { box-shadow: 0 0 22px 4px rgba(239, 68, 68, 0.55); }
+}
+
+/* KDS embedded in the presentation hub (half-height iframe): compact, columns scroll */
+.kds-embed { height: 100vh; min-height: 0; overflow: hidden; }
+.kds-embed #kds-header { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.kds-embed .kds-subtitle { display: none; }
+.kds-embed .kds-board { padding: 0.5rem; gap: 0.5rem; grid-template-rows: minmax(0, 1fr); }
+.kds-embed .kds-col > div { flex: 1 1 auto; min-height: 0; padding-bottom: 0.25rem; }
+.kds-embed .kds-col h2 { font-size: 0.65rem; }
