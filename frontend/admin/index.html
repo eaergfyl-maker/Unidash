@@ -12,6 +12,7 @@
     <h1 class="font-bold">🏛️ University Service Desk <span class="text-xs text-slate-400 font-normal">Virtual queue terminal</span></h1>
     <select id="counter" class="bg-slate-800 rounded px-3 py-1.5 text-sm"></select>
   </header>
+  <div id="admin-msg" class="hidden" role="status" aria-live="polite"></div>
 
   <main class="grid lg:grid-cols-[1fr_340px] gap-4 p-5">
     <section>
@@ -20,7 +21,8 @@
           <p class="text-xs text-slate-400">Now serving</p>
           <p id="now-serving" class="text-4xl font-bold text-cyan-300">--</p>
         </div>
-        <button id="call-next" class="px-5 py-3 rounded-xl bg-cyan-500 text-slate-950 font-bold">Call Next Ticket</button>
+        <button id="call-next" class="px-5 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold disabled:opacity-50">Call Next Ticket</button>
+        <span id="waiting-count" class="text-sm text-slate-400">0 waiting</span>
       </div>
       <table class="w-full text-sm">
         <thead class="text-left text-xs uppercase text-slate-400">
@@ -38,7 +40,7 @@
         <input name="student_name" required placeholder="Student name" class="w-full bg-slate-800 rounded px-3 py-2" />
         <input name="matric_no" required placeholder="Matric no." class="w-full bg-slate-800 rounded px-3 py-2" />
         <input name="inquiry" placeholder="Inquiry (optional)" class="w-full bg-slate-800 rounded px-3 py-2" />
-        <button class="w-full py-2 rounded bg-slate-700 hover:bg-slate-600 font-semibold">Join queue</button>
+        <button type="submit" class="w-full py-2 rounded bg-slate-700 hover:bg-slate-600 font-semibold disabled:opacity-50">Join queue</button>
       </form>
     </aside>
   </main>

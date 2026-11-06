@@ -6,7 +6,7 @@ Admin desk tickets: WAITING -> CALLED -> IN_SERVICE -> COMPLETED  (moved by staf
 import asyncio
 import itertools
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from backend.config import settings
 from backend.models.orders import (
@@ -98,11 +98,38 @@ class QueueManager:
             key=lambda t: t.fire_at,
         )
 
-    def set_sub_status(self, ticket_id: str, status: SubTicketStatus) -> SubTicket:
+    def set_sub_status(
+        self, ticket_id: str, status: SubTicketStatus, now: datetime | None = None
+    ) -> SubTicket:
+        now = now or datetime.now()
         ticket = self.sub_tickets[ticket_id]
+        finished_early = status == SubTicketStatus.READY and now < ticket.ready_at
         ticket.status = status
+        if finished_early:
+            self._cascade_early_completion(ticket, now)
         self._update_order_status(ticket.order_id)
         return ticket
+
+    def _cascade_early_completion(self, ticket: SubTicket, now: datetime) -> None:
+        """Early Completion Cascading.
+
+        A stall finished before its planned ready_at, so siblings still held by
+        Sync-Fire should not keep waiting for their original fire_at (the ready
+        food would go cold). Fire every STAGED sibling now and re-sync the order's
+        target_ready_at. Siblings already COOKING, READY or COLLECTED are untouched.
+        """
+        ticket.ready_at = now  # it is actually ready now, not at the planned time
+        ticket.seconds_until_ready = 0.0
+        order = self.orders[ticket.order_id]
+        for sib in order.sub_tickets:
+            if sib.id == ticket.id or sib.status != SubTicketStatus.STAGED:
+                continue
+            sib.fire_at = now
+            sib.ready_at = now + timedelta(seconds=sib.prep_minutes * settings.sim_seconds_per_minute)
+            sib.status = SubTicketStatus.COOKING
+            sib.seconds_until_fire = 0.0
+            sib.seconds_until_ready = (sib.ready_at - now).total_seconds()
+        order.target_ready_at = max(t.ready_at for t in order.sub_tickets)
 
     def _refresh(self, now: datetime) -> None:
         """Advance timed statuses. Never moves a ticket backwards, so vendor actions win."""
