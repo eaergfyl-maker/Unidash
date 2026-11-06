@@ -12,7 +12,8 @@ const state = {
   orderId: null,
   pollTimer: null,
   secPerMin: 60, // from /api/health; lower = faster demo clock
-  student: { name: "", id: "" }, // NEW: captured via identity modal before checkout
+  student: { name: "", id: "" }, // captured via identity modal before checkout
+  checkingOut: false, // true while a checkout request is in flight
 };
 
 async function api(path, options = {}) {
@@ -119,8 +120,13 @@ function openIdentityModal() {
 }
 
 async function checkout() {
+  // Keep the modal open while the request runs so the loading state is visible,
+  // and lock every button that could start a second checkout.
+  if (state.checkingOut) return;
+  state.checkingOut = true;
   const btn = $("#identity-confirm");
-  btn.disabled = true;
+  const lockIds = ["#identity-confirm", "#identity-cancel", "#checkout-btn"];
+  lockIds.forEach((id) => ($(id).disabled = true));
   btn.textContent = "Processing Campus Pay...";
   try {
     const order = await api("/order/checkout", {
@@ -133,6 +139,7 @@ async function checkout() {
     });
     state.orderId = order.id;
     state.cart = [];
+    $("#identity-modal").classList.add("hidden");
     $("#cart-drawer").classList.add("hidden");
     $("#catalog-view").classList.add("hidden");
     $("#tracker-view").classList.remove("hidden");
@@ -142,8 +149,9 @@ async function checkout() {
   } catch (e) {
     alert(`Checkout failed: ${e.message}`);
   } finally {
-    btn.disabled = false;
+    lockIds.forEach((id) => ($(id).disabled = false));
     btn.textContent = "Confirm & Pay";
+    state.checkingOut = false;
   }
 }
 
@@ -326,6 +334,7 @@ $("#checkout-btn").addEventListener("click", openIdentityModal);
 
 // NEW: identity modal wiring
 $("#identity-cancel").addEventListener("click", () => {
+  if (state.checkingOut) return;
   $("#identity-modal").classList.add("hidden");
 });
 $("#identity-confirm").addEventListener("click", async () => {
@@ -336,7 +345,6 @@ $("#identity-confirm").addEventListener("click", async () => {
     return;
   }
   state.student = { name, id };
-  $("#identity-modal").classList.add("hidden");
   await checkout();
 });
 
