@@ -5,60 +5,113 @@ const $ = (sel) => document.querySelector(sel);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fmt = (secs) => `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, "0")}`;
 
-let audioCtx = null;
-function chime() {
-audioCtx = audioCtx || new AudioContext();
-const now = audioCtx.currentTime;
-[880, 1320].forEach((freq, i) => {
-const osc = audioCtx.createOscillator();
-const gain = audioCtx.createGain();
-osc.frequency.value = freq;
-gain.gain.setValueAtTime(0.2, now + i * 0.15);
-gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.3);
-osc.connect(gain).connect(audioCtx.destination);
-osc.start(now + i * 0.15);
-osc.stop(now + i * 0.15 + 0.3);
-});
-}
+const COLUMNS = ["STAGED", "COOKING", "READY"];
+const FIRE_HIGHLIGHT_MS = 6000; // how long a just-fired ticket glows
 
 const params = new URLSearchParams(location.search);
+const embedded = Boolean(params.get("embed"));
 let shops = [];
 let currentShop = params.get("shop");
-let seenCooking = null;
 
+// Per-stall view state, reset when switching tabs.
+let lastStatus = null;           // ticket id -> status from the previous poll (null = first poll)
+let firedAt = new Map();         // ticket id -> time it moved STAGED -> COOKING
+const pending = new Set();       // ticket ids with an action request in flight
+const colSignature = {};         // column -> signature of what is rendered, to avoid needless rebuilds
+
+// ---------- sound ----------
+// Browsers only allow audio after a user gesture, so the chime stays off until the
+// kitchen taps the sound button (or anywhere on the board).
+let audioCtx = null;
+let soundOn = false;
+
+function unlockSound() {
+  audioCtx = audioCtx || new AudioContext();
+  if (audioCtx.state === "suspended") audioCtx.resume();
+  soundOn = true;
+  renderSoundButton();
+}
+
+function chime() {
+  if (!soundOn || !audioCtx) return;
+  const now = audioCtx.currentTime;
+  [880, 1320].forEach((freq, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.2, now + i * 0.15);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.3);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(now + i * 0.15);
+    osc.stop(now + i * 0.15 + 0.3);
+  });
+}
+
+function renderSoundButton() {
+  const btn = $("#sound-btn");
+  btn.textContent = soundOn ? "🔔 Sound on" : "🔕 Tap for sound";
+  btn.className = `px-2 py-1 rounded text-xs ${soundOn ? "bg-slate-800 text-slate-300" : "bg-amber-400/20 text-amber-300"}`;
+}
+
+// ---------- api ----------
 async function api(path, options = {}) {
   const res = await fetch(API + path, { headers: { "Content-Type": "application/json" }, ...options });
-  if (!res.ok) throw new Error(res.statusText);
+  if (!res.ok) {
+    let msg = res.statusText;
+    try {
+      const body = await res.json();
+      msg = typeof body.detail === "string" ? body.detail : body.detail?.[0]?.msg || msg;
+    } catch {}
+    throw new Error(msg);
+  }
   return res.json();
 }
 
+function showError(msg) {
+  const el = $("#kds-error");
+  el.textContent = msg;
+  el.classList.remove("hidden");
+  clearTimeout(showError.timer);
+  showError.timer = setTimeout(() => el.classList.add("hidden"), 4000);
+}
+
+// ---------- rendering ----------
 function renderTabs() {
   const shop = shops.find((s) => s.id === currentShop);
-  if (params.get("embed")) {
+  if (embedded) {
     $("#tabs").innerHTML = `<span class="px-3 py-1 rounded bg-cyan-500 text-slate-950 font-semibold">${esc(shop?.name)}</span>`;
     return;
   }
   $("#tabs").innerHTML = shops
-    .map((s, i) => `<button data-shop="${s.id}" class="px-3 py-1 rounded ${s.id === currentShop ? "bg-cyan-500 text-slate-950 font-semibold" : "bg-slate-800"}">Stall ${String.fromCharCode(65 + i)} · ${esc(s.name)}</button>`)
+    .map((s, i) => `<button data-shop="${esc(s.id)}" class="px-3 py-1 rounded ${s.id === currentShop ? "bg-cyan-500 text-slate-950 font-semibold" : "bg-slate-800 hover:bg-slate-700"}">Stall ${String.fromCharCode(65 + i)} · ${esc(s.name)}</button>`)
     .join("");
 }
 
-function ticketCard(t) {
+function ticketCard(t, isNew) {
   const lines = t.lines.map((l) => `<li>${l.quantity}× ${esc(l.name)}</li>`).join("");
+  const busy = pending.has(t.id);
+  const justFired = t.status === "COOKING" && firedAt.has(t.id) && Date.now() - firedAt.get(t.id) < FIRE_HIGHLIGHT_MS;
   let badge = "";
   let action = "";
+  let border = "border-slate-700";
   if (t.status === "STAGED") {
-    badge = `<span class="text-xs px-2 py-0.5 rounded bg-amber-400/20 text-amber-300">Held by AI · firing in ${fmt(t.seconds_until_fire)}</span>`;
+    badge = `<span class="text-xs px-2 py-0.5 rounded bg-amber-400/20 text-amber-300">Held by AI · firing in <span data-timer="${esc(t.id)}">${fmt(t.seconds_until_fire)}</span></span>`;
+    border = "border-amber-400/30";
   } else if (t.status === "COOKING") {
     badge = `<span class="cook-now text-xs px-2 py-0.5 rounded bg-red-500 text-white font-bold">COOK NOW</span>
-             <span class="text-xs text-slate-400 ml-1">${fmt(t.seconds_until_ready)} to sync point</span>`;
-    action = `<button data-ready="${t.id}" class="mt-2 w-full py-1.5 rounded bg-green-400 text-slate-950 text-sm font-semibold">Mark as Ready</button>`;
+             <span class="text-xs text-slate-400 ml-1"><span data-timer="${esc(t.id)}">${fmt(t.seconds_until_ready)}</span> to sync point</span>`;
+    action = `<button data-ready="${esc(t.id)}" ${busy ? "disabled" : ""} class="mt-2 w-full py-1.5 rounded bg-green-400 text-slate-950 text-sm font-semibold disabled:opacity-50">${busy ? "Saving..." : "Mark as Ready"}</button>`;
+    border = "border-red-500/50";
   } else {
     badge = `<span class="text-xs px-2 py-0.5 rounded bg-green-400/20 text-green-300">Waiting for pickup</span>`;
-    action = `<button data-collected="${t.id}" class="mt-2 w-full py-1.5 rounded bg-slate-700 text-sm">Collected</button>`;
+    action = `<button data-collected="${esc(t.id)}" ${busy ? "disabled" : ""} class="mt-2 w-full py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-sm disabled:opacity-50">${busy ? "Saving..." : "Collected"}</button>`;
+    border = "border-green-400/40";
   }
+  const classes = ["rounded-xl bg-slate-800 border p-3", border];
+  if (isNew) classes.push("fade-in");
+  if (justFired) classes.push("just-fired");
   return `
-    <div class="rounded-xl bg-slate-800 border border-slate-700 p-3 fade-in">
+    <div data-ticket="${esc(t.id)}" class="${classes.join(" ")}">
       <div class="flex justify-between text-sm font-semibold"><span>${esc(t.order_id)}</span><span class="text-slate-400">${esc(t.id)}</span></div>
       <ul class="text-sm text-slate-300 my-2">${lines}</ul>
       ${badge}${action}
@@ -67,34 +120,78 @@ function ticketCard(t) {
 
 async function refresh() {
   if (!currentShop) return;
+  let tickets;
   try {
-    const tickets = await api(`/queue/vendor/${currentShop}`);
-    const cookingIds = tickets.filter((t) => t.status === "COOKING").map((t) => t.id);
-    if (seenCooking && cookingIds.some((id) => !seenCooking.includes(id))) chime();
-    seenCooking = cookingIds;
-    for (const col of ["STAGED", "COOKING", "READY"]) {
-      const list = tickets.filter((t) => t.status === col);
-      $(`#col-${col}`).innerHTML = list.length ? list.map(ticketCard).join("") : `<p class="text-xs text-slate-600">No tickets</p>`;
-    }
+    tickets = await api(`/queue/vendor/${currentShop}`);
   } catch (e) {
     console.error(e);
+    return;
   }
+
+  const now = Date.now();
+  let newlyFired = false;
+  for (const t of tickets) {
+    const prev = lastStatus?.get(t.id);
+    if (t.status === "COOKING" && lastStatus && prev !== "COOKING") {
+      // Fired since the last poll (STAGED -> COOKING, or a brand-new ticket that fires immediately).
+      firedAt.set(t.id, now);
+      newlyFired = true;
+    }
+  }
+  if (newlyFired) chime();
+
+  for (const col of COLUMNS) {
+    const list = tickets.filter((t) => t.status === col);
+    const isJustFired = (t) => firedAt.has(t.id) && now - firedAt.get(t.id) < FIRE_HIGHLIGHT_MS;
+    const signature = list.map((t) => `${t.id}:${pending.has(t.id)}:${isJustFired(t)}`).join(",");
+    if (signature === colSignature[col]) {
+      // Same tickets in the same state: only tick the countdowns. Rebuilding the cards every
+      // second would swallow clicks that land mid-rebuild and restart animations.
+      for (const t of list) {
+        const timer = document.querySelector(`[data-timer="${CSS.escape(t.id)}"]`);
+        if (timer) timer.textContent = fmt(col === "STAGED" ? t.seconds_until_fire : t.seconds_until_ready);
+      }
+    } else {
+      // Only animate cards that just entered this column.
+      $(`#col-${col}`).innerHTML = list.length
+        ? list.map((t) => ticketCard(t, lastStatus?.get(t.id) !== col)).join("")
+        : `<p class="text-xs text-slate-600">No tickets</p>`;
+      colSignature[col] = signature;
+    }
+    $(`#count-${col}`).textContent = list.length;
+  }
+  lastStatus = new Map(tickets.map((t) => [t.id, t.status]));
 }
 
 async function setStatus(ticketId, status) {
-  await api(`/queue/ticket/${ticketId}/action`, { method: "POST", body: JSON.stringify({ status }) });
+  if (pending.has(ticketId)) return;
+  pending.add(ticketId);
+  refresh();
+  try {
+    await api(`/queue/ticket/${ticketId}/action`, { method: "POST", body: JSON.stringify({ status }) });
+  } catch (e) {
+    showError(`Could not update ${ticketId}: ${e.message}`);
+  } finally {
+    pending.delete(ticketId);
+    refresh();
+  }
+}
+
+function switchShop(shopId) {
+  currentShop = shopId;
+  lastStatus = null;
+  firedAt = new Map();
+  for (const col of COLUMNS) delete colSignature[col];
+  history.replaceState(null, "", `?shop=${currentShop}${embedded ? "&embed=1" : ""}`);
+  renderTabs();
   refresh();
 }
 
+// ---------- events ----------
 document.addEventListener("click", (e) => {
+  if (!soundOn) unlockSound(); // any tap on the board enables the chime
   const tab = e.target.closest("[data-shop]");
-  if (tab) {
-    currentShop = tab.dataset.shop;
-    seenCooking = null;
-    history.replaceState(null, "", `?shop=${currentShop}`);
-    renderTabs();
-    refresh();
-  }
+  if (tab) switchShop(tab.dataset.shop);
   const ready = e.target.closest("[data-ready]");
   if (ready) setStatus(ready.dataset.ready, "READY");
   const collected = e.target.closest("[data-collected]");
@@ -102,7 +199,14 @@ document.addEventListener("click", (e) => {
 });
 
 (async function init() {
-  shops = await api("/shops");
+  if (embedded) document.body.classList.add("kds-embed");
+  renderSoundButton();
+  try {
+    shops = await api("/shops");
+  } catch (e) {
+    showError(`Could not load stalls: ${e.message}`);
+    return;
+  }
   if (!shops.some((s) => s.id === currentShop)) currentShop = shops[0]?.id;
   renderTabs();
   refresh();
