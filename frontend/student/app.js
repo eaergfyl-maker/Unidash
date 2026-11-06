@@ -12,6 +12,7 @@ const state = {
   orderId: null,
   pollTimer: null,
   secPerMin: 60, // from /api/health; lower = faster demo clock
+  student: { name: "", id: "" }, // NEW: captured via identity modal before checkout
 };
 
 async function api(path, options = {}) {
@@ -110,14 +111,25 @@ function renderCartDrawer() {
     .join("");
 }
 
+// NEW: open the identity modal instead of checking out directly
+function openIdentityModal() {
+  $("#student-name-input").value = state.student.name;
+  $("#student-id-input").value = state.student.id;
+  $("#identity-modal").classList.remove("hidden");
+}
+
 async function checkout() {
-  const btn = $("#checkout-btn");
+  const btn = $("#identity-confirm");
   btn.disabled = true;
   btn.textContent = "Processing Campus Pay...";
   try {
     const order = await api("/order/checkout", {
       method: "POST",
-      body: JSON.stringify({ student_name: "Demo Student", items: state.cart }),
+      body: JSON.stringify({
+        student_name: state.student.name,
+        student_id: state.student.id,
+        items: state.cart,
+      }),
     });
     state.orderId = order.id;
     state.cart = [];
@@ -131,7 +143,7 @@ async function checkout() {
     alert(`Checkout failed: ${e.message}`);
   } finally {
     btn.disabled = false;
-    btn.textContent = "Campus Pay · Checkout";
+    btn.textContent = "Confirm & Pay";
   }
 }
 
@@ -308,7 +320,26 @@ $("#cart-bar").addEventListener("click", () => {
   $("#cart-drawer").classList.remove("hidden");
 });
 $("#close-cart").addEventListener("click", () => $("#cart-drawer").classList.add("hidden"));
-$("#checkout-btn").addEventListener("click", checkout);
+
+// CHANGED: checkout-btn now opens the identity modal instead of calling checkout() directly
+$("#checkout-btn").addEventListener("click", openIdentityModal);
+
+// NEW: identity modal wiring
+$("#identity-cancel").addEventListener("click", () => {
+  $("#identity-modal").classList.add("hidden");
+});
+$("#identity-confirm").addEventListener("click", async () => {
+  const name = $("#student-name-input").value.trim();
+  const id = $("#student-id-input").value.trim();
+  if (!name || !id) {
+    alert("Please enter your name and student ID.");
+    return;
+  }
+  state.student = { name, id };
+  $("#identity-modal").classList.add("hidden");
+  await checkout();
+});
+
 $("#parse-btn").addEventListener("click", parseNotice);
 $("#timetable-upload").addEventListener("submit", uploadTimetable);
 $("#load-sample").addEventListener("click", loadSample);
