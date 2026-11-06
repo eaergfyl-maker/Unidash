@@ -5,9 +5,26 @@ const $ = (sel) => document.querySelector(sel);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fmt = (secs) => `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, "0")}`;
 
+let audioCtx = null;
+function chime() {
+audioCtx = audioCtx || new AudioContext();
+const now = audioCtx.currentTime;
+[880, 1320].forEach((freq, i) => {
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+osc.frequency.value = freq;
+gain.gain.setValueAtTime(0.2, now + i * 0.15);
+gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.3);
+osc.connect(gain).connect(audioCtx.destination);
+osc.start(now + i * 0.15);
+osc.stop(now + i * 0.15 + 0.3);
+});
+}
+
 const params = new URLSearchParams(location.search);
 let shops = [];
 let currentShop = params.get("shop");
+let seenCooking = null;
 
 async function api(path, options = {}) {
   const res = await fetch(API + path, { headers: { "Content-Type": "application/json" }, ...options });
@@ -52,6 +69,9 @@ async function refresh() {
   if (!currentShop) return;
   try {
     const tickets = await api(`/queue/vendor/${currentShop}`);
+    const cookingIds = tickets.filter((t) => t.status === "COOKING").map((t) => t.id);
+    if (seenCooking && cookingIds.some((id) => !seenCooking.includes(id))) chime();
+    seenCooking = cookingIds;
     for (const col of ["STAGED", "COOKING", "READY"]) {
       const list = tickets.filter((t) => t.status === col);
       $(`#col-${col}`).innerHTML = list.length ? list.map(ticketCard).join("") : `<p class="text-xs text-slate-600">No tickets</p>`;
@@ -70,6 +90,7 @@ document.addEventListener("click", (e) => {
   const tab = e.target.closest("[data-shop]");
   if (tab) {
     currentShop = tab.dataset.shop;
+    seenCooking = null;
     history.replaceState(null, "", `?shop=${currentShop}`);
     renderTabs();
     refresh();
