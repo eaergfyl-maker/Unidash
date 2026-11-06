@@ -5,6 +5,22 @@ const $ = (sel) => document.querySelector(sel);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fmt = (secs) => `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, "0")}`;
 
+let audioCtx = null;
+function chime() {
+audioCtx = audioCtx || new AudioContext();
+const now = audioCtx.currentTime;
+[880, 1320].forEach((freq, i) => {
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+osc.frequency.value = freq;
+gain.gain.setValueAtTime(0.2, now + i * 0.15);
+gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.3);
+osc.connect(gain).connect(audioCtx.destination);
+osc.start(now + i * 0.15);
+osc.stop(now + i * 0.15 + 0.3);
+});
+}
+
 const params = new URLSearchParams(location.search);
 let shops = [];
 let currentShop = params.get("shop");
