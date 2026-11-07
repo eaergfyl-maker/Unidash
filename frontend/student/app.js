@@ -352,10 +352,20 @@ $("#parse-btn").addEventListener("click", parseNotice);
 $("#timetable-upload").addEventListener("submit", uploadTimetable);
 $("#load-sample").addEventListener("click", loadSample);
 
-(async function init() {
-  const [shops, health] = await Promise.all([api("/shops"), api("/health")]);
-  state.shops = shops;
-  state.secPerMin = health.sim_seconds_per_minute;
-  renderFilters();
-  renderShops();
-})();
+async function init() {
+  try {
+    const [shops, health] = await Promise.all([api("/shops"), api("/health")]);
+    state.shops = shops;
+    state.secPerMin = health.sim_seconds_per_minute;
+    renderFilters();
+    renderShops();
+  } catch (e) {
+    $("#shops").innerHTML = `
+      <div class="text-center text-sm text-slate-400 py-8">
+        <p class="mb-3">Couldn't load the menu. Check your connection and try again.</p>
+        <button id="retry-init" class="px-4 py-2 rounded-lg bg-cyan-500 text-slate-950 font-semibold">Retry</button>
+      </div>`;
+    $("#retry-init").addEventListener("click", init);
+  }
+}
+init();
