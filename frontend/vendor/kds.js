@@ -198,8 +198,19 @@ document.addEventListener("click", (e) => {
   if (collected) setStatus(collected.dataset.collected, "COLLECTED");
 });
 
+$("#reset-demo").addEventListener("click", async () => {
+if (!confirm("Wipe all demo orders and tickets?")) return;
+  try {
+    await api("/demo/reset", { method: "POST" });
+    switchShop(currentShop);
+  } catch (e) {
+    showError(`Could not reset demo: ${e.message}`);
+  }
+});
+
 (async function init() {
   if (embedded) document.body.classList.add("kds-embed");
+  if (embedded) $("#reset-demo").classList.add("hidden");
   renderSoundButton();
   try {
     shops = await api("/shops");
