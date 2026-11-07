@@ -97,6 +97,7 @@ function ticketCard(t, isNew) {
   if (t.status === "STAGED") {
     badge = `<span class="text-xs px-2 py-0.5 rounded bg-amber-400/20 text-amber-300">Held by AI · firing in <span data-timer="${esc(t.id)}">${fmt(t.seconds_until_fire)}</span></span>`;
     border = "border-amber-400/30";
+    action = `<button data-cook="${esc(t.id)}" ${busy ? "disabled" : ""} class="mt-2 w-full py-1.5 rounded bg-amber-400 text-slate-950 text-sm font-semibold disabled:opacity-50">${busy ? "Saving..." : "Cook now"}</button>`;
   } else if (t.status === "COOKING") {
     badge = `<span class="cook-now text-xs px-2 py-0.5 rounded bg-red-500 text-white font-bold">COOK NOW</span>
              <span class="text-xs text-slate-400 ml-1"><span data-timer="${esc(t.id)}">${fmt(t.seconds_until_ready)}</span> to sync point</span>`;
@@ -196,6 +197,8 @@ document.addEventListener("click", (e) => {
   if (ready) setStatus(ready.dataset.ready, "READY");
   const collected = e.target.closest("[data-collected]");
   if (collected) setStatus(collected.dataset.collected, "COLLECTED");
+  const cook = e.target.closest("[data-cook]");
+  if (cook) setStatus(cook.dataset.cook, "COOKING");
 });
 
 $("#reset-demo").addEventListener("click", async () => {
