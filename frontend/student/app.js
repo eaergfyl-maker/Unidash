@@ -112,7 +112,6 @@ function renderCartDrawer() {
     .join("");
 }
 
-// NEW: open the identity modal instead of checking out directly
 function openIdentityModal() {
   $("#student-name-input").value = state.student.name;
   $("#student-id-input").value = state.student.id;
@@ -194,11 +193,14 @@ function renderTracker(order) {
       <p class="font-bold">${startWalking ? `🚶 Start walking now (${walk} min walk)` : "📚 Relax, we'll tell you when to walk"}</p>
     </div>
     <div class="rounded-2xl bg-white text-slate-900 p-4 text-center">
-      <!-- TODO (Person 2): render a real QR code for order.id -->
-      <div class="mx-auto w-32 h-32 border-4 border-slate-900 grid place-items-center font-mono text-xs">QR<br/>${esc(order.id)}</div>
+      <div id="qr-canvas" class="mx-auto" style="width:128px;height:128px"></div>
       <p class="text-xs mt-2">One code for every stall</p>
     </div>
     <button id="new-order" class="mt-4 w-full py-2 text-sm text-slate-400">Start a new order</button>`;
+
+  // Draw the real QR code (qrcodejs: renders into a div, no callback)
+  $("#qr-canvas").innerHTML = "";
+  new QRCode($("#qr-canvas"), { text: order.id, width: 128, height: 128 });
 }
 
 function resetToCatalog() {
@@ -329,10 +331,8 @@ $("#cart-bar").addEventListener("click", () => {
 });
 $("#close-cart").addEventListener("click", () => $("#cart-drawer").classList.add("hidden"));
 
-// CHANGED: checkout-btn now opens the identity modal instead of calling checkout() directly
 $("#checkout-btn").addEventListener("click", openIdentityModal);
 
-// NEW: identity modal wiring
 $("#identity-cancel").addEventListener("click", () => {
   if (state.checkingOut) return;
   $("#identity-modal").classList.add("hidden");
@@ -352,10 +352,20 @@ $("#parse-btn").addEventListener("click", parseNotice);
 $("#timetable-upload").addEventListener("submit", uploadTimetable);
 $("#load-sample").addEventListener("click", loadSample);
 
-(async function init() {
-  const [shops, health] = await Promise.all([api("/shops"), api("/health")]);
-  state.shops = shops;
-  state.secPerMin = health.sim_seconds_per_minute;
-  renderFilters();
-  renderShops();
-})();
+async function init() {
+  try {
+    const [shops, health] = await Promise.all([api("/shops"), api("/health")]);
+    state.shops = shops;
+    state.secPerMin = health.sim_seconds_per_minute;
+    renderFilters();
+    renderShops();
+  } catch (e) {
+    $("#shops").innerHTML = `
+      <div class="text-center text-sm text-slate-400 py-8">
+        <p class="mb-3">Couldn't load the menu. Check your connection and try again.</p>
+        <button id="retry-init" class="px-4 py-2 rounded-lg bg-cyan-500 text-slate-950 font-semibold">Retry</button>
+      </div>`;
+    $("#retry-init").addEventListener("click", init);
+  }
+}
+init();

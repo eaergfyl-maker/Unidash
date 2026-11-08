@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SyncFlow · Student</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <link rel="stylesheet" href="/assets/css/custom.css" />
 </head>
 <body class="bg-slate-900 text-slate-100">
@@ -65,7 +66,7 @@
           <input id="student-name-input" type="text" placeholder="e.g. Eashwar Singh"
             class="w-full mb-3 text-sm rounded-lg bg-slate-800 border border-slate-700 p-2 focus:outline-none focus:border-cyan-500" />
           <label class="block text-xs text-slate-400 mb-1">Student ID</label>
-          <input id="student-id-input" type="text" placeholder="e.g. STU-9921"
+          <input id="student-id-input" type="text" placeholder="e.g. A21CS0142"
             class="w-full mb-4 text-sm rounded-lg bg-slate-800 border border-slate-700 p-2 focus:outline-none focus:border-cyan-500" />
           <div class="flex gap-2">
             <button id="identity-cancel" class="flex-1 py-2 rounded-lg bg-slate-800 text-sm disabled:opacity-50">Cancel</button>
@@ -74,8 +75,6 @@
       </div>
     </div>
   </div>
-
-
   <script src="/student/app.js"></script>
 </body>
 </html>
