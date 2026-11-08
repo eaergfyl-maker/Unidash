@@ -142,6 +142,27 @@ def test_early_ready_does_not_touch_cooking_siblings(client):
     assert bento_after["ready_at"] == bento_before["ready_at"]
 
 
+def test_cook_now_fires_held_ticket_immediately(client):
+    order = checkout(client, [BENTO, LATTE]).json()
+    tickets = {t["shop_id"]: t for t in order["sub_tickets"]}
+    assert tickets["brewlab"]["status"] == "STAGED"
+
+    before = datetime.now()
+    r = client.post(f"/api/queue/ticket/{tickets['brewlab']['id']}/action", json={"status": "COOKING"})
+    after = datetime.now()
+    assert r.status_code == 200 and r.json()["status"] == "COOKING"
+
+    updated = client.get(f"/api/order/{order['id']}/status").json()
+    subs = {t["shop_id"]: t for t in updated["sub_tickets"]}
+    latte = subs["brewlab"]
+    fire_at = datetime.fromisoformat(latte["fire_at"])
+    ready_at = datetime.fromisoformat(latte["ready_at"])
+    assert before <= fire_at <= after
+    assert ready_at - fire_at == timedelta(seconds=queue_manager_seconds(3))
+    # Bento still takes longer, so the order's pickup time stays on the bento.
+    assert updated["target_ready_at"] == subs["tokyo-bento"]["ready_at"]
+
+
 def test_ticket_action_errors(client):
     order = checkout(client, [BENTO]).json()
     sid = order["sub_tickets"][0]["id"]

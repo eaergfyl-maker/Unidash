@@ -198,9 +198,20 @@ function renderTracker(order) {
     </div>
     <button id="new-order" class="mt-4 w-full py-2 text-sm text-slate-400">Start a new order</button>`;
 
-  // Draw the real QR code (qrcodejs: renders into a div, no callback)
-  $("#qr-canvas").innerHTML = "";
-  new QRCode($("#qr-canvas"), { text: order.id, width: 128, height: 128 });
+  drawQr(order.id);
+}
+
+// Draw the real QR code (qrcodejs renders into a div). If the CDN script did not
+// load (offline demo, blocked network), show the order ID instead of crashing the tracker.
+function drawQr(text) {
+  const box = $("#qr-canvas");
+  box.innerHTML = "";
+  try {
+    new QRCode(box, { text, width: 128, height: 128 });
+  } catch (e) {
+    box.className = "mx-auto border-4 border-slate-900 grid place-items-center font-mono text-xs";
+    box.innerHTML = `QR<br/>${esc(text)}`;
+  }
 }
 
 function resetToCatalog() {

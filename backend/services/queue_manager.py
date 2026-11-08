@@ -104,11 +104,26 @@ class QueueManager:
         now = now or datetime.now()
         ticket = self.sub_tickets[ticket_id]
         finished_early = status == SubTicketStatus.READY and now < ticket.ready_at
+        cooked_early = status == SubTicketStatus.COOKING and ticket.status == SubTicketStatus.STAGED
         ticket.status = status
         if finished_early:
             self._cascade_early_completion(ticket, now)
+        elif cooked_early:
+            # Vendor pressed "Cook now" on a held ticket: it starts cooking now,
+            # so its timeline (and the order's sync target) must move with it.
+            self._fire_now(ticket, now)
+            order = self.orders[ticket.order_id]
+            order.target_ready_at = max(t.ready_at for t in order.sub_tickets)
         self._update_order_status(ticket.order_id)
         return ticket
+
+    @staticmethod
+    def _fire_now(ticket: SubTicket, now: datetime) -> None:
+        ticket.fire_at = now
+        ticket.ready_at = now + timedelta(seconds=ticket.prep_minutes * settings.sim_seconds_per_minute)
+        ticket.status = SubTicketStatus.COOKING
+        ticket.seconds_until_fire = 0.0
+        ticket.seconds_until_ready = (ticket.ready_at - now).total_seconds()
 
     def _cascade_early_completion(self, ticket: SubTicket, now: datetime) -> None:
         """Early Completion Cascading.
@@ -124,11 +139,7 @@ class QueueManager:
         for sib in order.sub_tickets:
             if sib.id == ticket.id or sib.status != SubTicketStatus.STAGED:
                 continue
-            sib.fire_at = now
-            sib.ready_at = now + timedelta(seconds=sib.prep_minutes * settings.sim_seconds_per_minute)
-            sib.status = SubTicketStatus.COOKING
-            sib.seconds_until_fire = 0.0
-            sib.seconds_until_ready = (sib.ready_at - now).total_seconds()
+            self._fire_now(sib, now)
         order.target_ready_at = max(t.ready_at for t in order.sub_tickets)
 
     def _refresh(self, now: datetime) -> None:

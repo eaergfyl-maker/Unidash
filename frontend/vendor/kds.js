@@ -202,7 +202,7 @@ document.addEventListener("click", (e) => {
 });
 
 $("#reset-demo").addEventListener("click", async () => {
-if (!confirm("Wipe all demo orders and tickets?")) return;
+  if (!confirm("Wipe all demo orders and tickets?")) return;
   try {
     await api("/demo/reset", { method: "POST" });
     switchShop(currentShop);
