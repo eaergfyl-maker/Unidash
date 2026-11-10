@@ -7,6 +7,7 @@ class TimetableSlot(BaseModel):
     start: str            # "13:30"
     end: str | None = None
     label: str | None = None
+    room: str | None = None
 
 
 class BreakWindow(BaseModel):
