@@ -1,4 +1,5 @@
 import json
+from dataclasses import replace
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -11,7 +12,10 @@ from backend.services import timetable_parser
 
 @pytest.fixture
 def client(monkeypatch):
-    monkeypatch.setattr(timetable_parser.settings, "gemini_api_key", None)
+    monkeypatch.setattr(
+        timetable_parser, "settings",
+        replace(timetable_parser.settings, gemini_api_key=None),
+    )
     with TestClient(app) as test_client:
         yield test_client
 
@@ -76,7 +80,8 @@ def test_break_window_subtracts_walking_buffer():
 
 def test_parse_uses_gemini_when_regex_misses(client, monkeypatch):
     monkeypatch.setattr(
-        timetable_parser.settings, "gemini_api_key", "fake-key-for-test"
+        timetable_parser, "settings",
+        replace(timetable_parser.settings, gemini_api_key="fake-key-for-test"),
     )
     expected = {
         "day": "Thu",
