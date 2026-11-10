@@ -71,8 +71,10 @@ def _gemini_parse(raw_text: str) -> list[TimetableSlot]:
         client = genai.Client(api_key=settings.gemini_api_key)
         prompt = (
             "Extract every class time slot from this announcement. Reply with JSON only, like: "
-            '[{"day": "Tue", "date": "17-Nov-2026", "start": "13:30", "end": "15:30", "label": "CS101"}]. '
-            "Use 24-hour HH:MM times and null for unknown fields.\n\n" + raw_text
+            '[{"day": "Thu", "date": "19-Nov-2026", "start": "14:00", '
+            '"end": "16:00", "label": null, "room": "Lab 4"}]. '
+            "Use 24-hour HH:MM times. Use null for unknown fields, "
+            "including dates that are not stated.\n\n" + raw_text
         )
         resp = client.models.generate_content(model=settings.gemini_model, contents=prompt)
         text = resp.text.strip().removeprefix("```json").removeprefix("```").removesuffix("```")
