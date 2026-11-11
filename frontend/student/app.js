@@ -10,6 +10,7 @@ const state = {
   cart: [], // [{shop_id, item_id, quantity}]
   breakWindow: null,
   orderId: null,
+  orderCreatedAt: null, // detects an order ID reused after a demo reset
   pollTimer: null,
   secPerMin: 60, // from /api/health; lower = faster demo clock
   student: { name: "", id: "" }, // captured via identity modal before checkout
@@ -21,7 +22,12 @@ async function api(path, options = {}) {
     headers: { "Content-Type": "application/json" },
     ...options,
   });
-  if (!res.ok) throw new Error((await res.json()).detail || res.statusText);
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const err = new Error(body.detail || res.statusText);
+    err.status = res.status;
+    throw err;
+  }
   return res.json();
 }
 
@@ -137,6 +143,8 @@ async function checkout() {
       }),
     });
     state.orderId = order.id;
+    state.orderCreatedAt = order.created_at;
+    $("#order-notice").classList.add("hidden");
     state.cart = [];
     $("#identity-modal").classList.add("hidden");
     $("#cart-drawer").classList.add("hidden");
@@ -158,11 +166,27 @@ async function checkout() {
 const fmt = (secs) => `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, "0")}`;
 
 async function pollOrder() {
+  const id = state.orderId;
+  if (!id) return;
   try {
-    renderTracker(await api(`/order/${state.orderId}/status`));
+    const order = await api(`/order/${id}/status`);
+    if (state.orderId !== id) return; // user left the tracker while the request ran
+    // Demo reset restarts numbering at ORD-8801, so the same ID can come back as a
+    // different order. A changed created_at means our order was wiped.
+    if (order.created_at !== state.orderCreatedAt) return orderWiped();
+    renderTracker(order);
   } catch (e) {
+    if (e.status === 404 && state.orderId === id) return orderWiped();
     console.error(e);
   }
+}
+
+// The order no longer exists on the server (demo reset): stop the timer and go back to the menu.
+function orderWiped() {
+  resetToCatalog();
+  const notice = $("#order-notice");
+  notice.textContent = "Your order was cleared because the demo was reset. Start a new order.";
+  notice.classList.remove("hidden");
 }
 
 function renderTracker(order) {
@@ -216,7 +240,10 @@ function drawQr(text) {
 
 function resetToCatalog() {
   clearInterval(state.pollTimer);
+  state.pollTimer = null;
   state.orderId = null;
+  state.orderCreatedAt = null;
+  $("#order-notice").classList.add("hidden");
   $("#tracker-view").classList.add("hidden");
   $("#catalog-view").classList.remove("hidden");
   renderCartBar();
