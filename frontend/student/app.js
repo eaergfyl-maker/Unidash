@@ -59,12 +59,13 @@ function renderShops() {
           ${items
             .map(
               (i) => `
-            <div class="flex justify-between items-center py-2 border-t border-slate-700/60">
-              <div>
-                <p class="text-sm">${esc(i.name)}</p>
-                <p class="text-xs text-slate-400">${money(i.price)} · ${i.prep_minutes} min</p>
+            <div class="flex items-center gap-3 py-2.5 border-t border-slate-700/60">
+              ${i.image ? `<img src="${esc(i.image)}" alt="${esc(i.name)}" loading="lazy" class="w-14 h-14 rounded-xl object-cover shrink-0 bg-slate-900 border border-slate-700/50" />` : ""}
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium truncate">${esc(i.name)}</p>
+                <p class="text-xs text-slate-400 mt-0.5">${money(i.price)} · ${i.prep_minutes} min</p>
               </div>
-              <button data-add="${shop.id}|${i.id}" class="w-8 h-8 rounded-full bg-cyan-500 text-slate-950 font-bold">+</button>
+              <button data-add="${shop.id}|${i.id}" class="w-8 h-8 rounded-full bg-cyan-500 hover:bg-cyan-400 active:scale-95 text-slate-950 font-bold shrink-0 transition-transform">+</button>
             </div>`
             )
             .join("")}
