@@ -1,7 +1,7 @@
 // SyncFlow student app: catalog, global cart, single checkout, live Sync-Prep tracker, schedule sync.
 const API = "/api";
 const $ = (sel) => document.querySelector(sel);
-const money = (n) => `$${n.toFixed(2)}`;
+const money = (n) => `RM${n.toFixed(2)}`;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 const state = {

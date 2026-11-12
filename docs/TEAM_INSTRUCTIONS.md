@@ -50,8 +50,8 @@
 * **Step 2.3 (Global Cart Drawer):** Build a bottom floating cart bar:
   * Shows total items count across different shops.
   * Clicking opens a drawer grouping items by stall with individual prep times:
-    * *Stall A: Tokyo Bento ($6.50) • Prep: 14 mins*
-    * *Stall B: BrewLab Iced Latte ($4.20) • Prep: 3 mins*
+    * *Stall A: Tokyo Bento (RM6.50) • Prep: 14 mins*
+    * *Stall B: BrewLab Iced Latte (RM4.20) • Prep: 3 mins*
 * **Step 2.4 (Single Checkout):** Connect checkout button to `POST /api/order/checkout`. Show a simulated "Campus Pay / Quick Pay" confirmation modal.
 * **Step 2.5 (Live "Sync-Prep" Radar Screen):** After checkout, transition to the live order tracker:
   * Dynamic animated status: *"Syncing kitchen timers... Bento cooking now, coffee brewing in 11 mins."*
