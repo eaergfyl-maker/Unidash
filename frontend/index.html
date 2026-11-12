@@ -4,30 +4,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SyncFlow · Presentation Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="/assets/css/custom.css" />
+  <script src="/assets/js/theme.js?v=4"></script>
+  <link rel="stylesheet" href="/assets/css/custom.css?v=4" />
 </head>
-<body class="bg-slate-950 text-slate-100 h-screen flex flex-col">
-  <header class="flex items-center justify-between px-5 py-3 border-b border-slate-800">
-    <div>
-      <h1 class="text-lg font-bold">Sync<span class="text-cyan-400">Flow</span></h1>
-      <p class="text-xs text-slate-400">Campus virtual queue · global cart · Sync-Fire kitchen timing</p>
+<body class="bg-navy text-cream h-screen flex flex-col">
+  <header class="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
+    <div class="flex items-baseline gap-4">
+      <h1 class="font-display text-2xl tracking-tight">SYNC<span class="text-sky">FLOW</span></h1>
+      <p class="hidden md:block text-xs text-mist/70">Campus virtual queue · global cart · Sync-Fire kitchen timing</p>
     </div>
-    <nav class="flex gap-2 text-sm">
-      <a href="/" class="px-3 py-1.5 rounded bg-cyan-500 text-slate-950 font-semibold">Split screen</a>
-      <a href="/student/" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700">Student</a>
-      <a href="/vendor/" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700">Vendor KDS</a>
-      <a href="/admin/" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700">Admin desk</a>
-      <a href="/docs" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700">API docs</a>
+    <nav class="flex flex-wrap gap-2 text-sm">
+      <a href="/" class="px-4 py-1.5 rounded-full bg-sky text-navy font-semibold">Split screen</a>
+      <a href="/student/" class="px-4 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-mist">Student</a>
+      <a href="/vendor/" class="px-4 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-mist">Vendor KDS</a>
+      <a href="/admin/" class="px-4 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-mist">Admin desk</a>
+      <a href="/docs" class="px-4 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-mist">API docs</a>
     </nav>
   </header>
 
   <!-- Left: student phone. Right: Stall A and Stall B kitchen boards, live. -->
-  <main class="flex-1 grid grid-cols-1 lg:grid-cols-[440px_1fr] min-h-0">
-    <iframe src="/student/" class="w-full h-full border-r border-slate-800" title="Student app"></iframe>
-    <div class="grid grid-rows-2 min-h-0">
-      <iframe src="/vendor/?shop=tokyo-bento&embed=1" class="w-full h-full border-b border-slate-800" title="Tokyo Bento KDS"></iframe>
-      <iframe src="/vendor/?shop=brewlab&embed=1" class="w-full h-full" title="BrewLab KDS"></iframe>
+  <main class="flex-1 grid grid-cols-1 lg:grid-cols-[460px_1fr] gap-3 px-3 pb-3 min-h-0">
+    <iframe src="/student/" class="w-full h-full rounded-[28px] bg-navy" title="Student app"></iframe>
+    <div class="grid grid-rows-2 gap-3 min-h-0">
+      <iframe src="/vendor/?shop=tokyo-bento&embed=1" class="w-full h-full rounded-[28px] bg-navy-2" title="Tokyo Bento KDS"></iframe>
+      <iframe src="/vendor/?shop=brewlab&embed=1" class="w-full h-full rounded-[28px] bg-navy-2" title="BrewLab KDS"></iframe>
     </div>
   </main>
 </body>

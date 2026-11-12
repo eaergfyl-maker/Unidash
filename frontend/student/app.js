@@ -40,7 +40,7 @@ function findItem(shopId, itemId) {
 function renderFilters() {
   const cats = ["All", "Food", "Coffee", "Quick Bites"];
   $("#filters").innerHTML = cats
-    .map((c) => `<button data-cat="${c}" class="px-3 py-1 rounded-full ${c === state.filter ? "bg-cyan-500 text-slate-950" : "bg-slate-800"}">${c}</button>`)
+    .map((c) => `<button data-cat="${c}" class="px-4 py-1.5 rounded-full whitespace-nowrap font-medium ${c === state.filter ? "bg-sky text-navy" : "bg-white/5 border border-white/15 text-mist"}">${c}</button>`)
     .join("");
 }
 
@@ -50,21 +50,22 @@ function renderShops() {
       const items = shop.menu.filter((i) => state.filter === "All" || i.category === state.filter);
       if (!items.length) return "";
       return `
-        <div class="rounded-2xl bg-slate-800/60 border border-slate-700 p-4">
-          <div class="flex justify-between items-baseline">
-            <h3 class="font-semibold">${esc(shop.name)}</h3>
-            <span class="text-xs text-slate-400">${shop.prep_range_minutes[0]}-${shop.prep_range_minutes[1]} min</span>
+        <div class="rounded-[28px] bg-cream text-navy p-4">
+          <div class="flex justify-between items-start gap-2">
+            <h3 class="font-display uppercase text-royal text-sm leading-tight">${esc(shop.name)}</h3>
+            <span class="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full bg-mist text-royal whitespace-nowrap">${shop.prep_range_minutes[0]}-${shop.prep_range_minutes[1]} min</span>
           </div>
-          <p class="text-xs text-slate-400 mb-3">📍 ${esc(shop.location)} · ${shop.walk_minutes} min walk</p>
+          <p class="text-xs text-navy/60 mt-1 mb-2">📍 ${esc(shop.location)} · ${shop.walk_minutes} min walk</p>
           ${items
             .map(
               (i) => `
-            <div class="flex justify-between items-center py-2 border-t border-slate-700/60">
-              <div>
-                <p class="text-sm">${esc(i.name)}</p>
-                <p class="text-xs text-slate-400">${money(i.price)} · ${i.prep_minutes} min</p>
+            <div class="flex items-center gap-3 py-2.5 border-t border-navy/10">
+              ${i.image ? `<img src="${esc(i.image)}" alt="${esc(i.name)}" loading="lazy" class="w-14 h-14 rounded-2xl object-cover shrink-0 bg-mist" />` : ""}
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold truncate">${esc(i.name)}</p>
+                <p class="text-xs text-navy/60 mt-0.5">${money(i.price)} · ${i.prep_minutes} min</p>
               </div>
-              <button data-add="${shop.id}|${i.id}" class="w-8 h-8 rounded-full bg-cyan-500 text-slate-950 font-bold">+</button>
+              <button data-add="${shop.id}|${i.id}" aria-label="Add ${esc(i.name)}" class="w-9 h-9 rounded-full bg-royal hover:bg-navy-2 active:scale-95 text-white text-lg font-bold shrink-0 transition-transform">+</button>
             </div>`
             )
             .join("")}
@@ -105,12 +106,12 @@ function renderCartDrawer() {
     .map(([shopId, lines]) => {
       const shop = state.shops.find((s) => s.id === shopId);
       return `
-        <div class="rounded-xl bg-slate-800 p-3">
-          <p class="font-semibold mb-1">${esc(shop.name)}</p>
+        <div class="rounded-2xl bg-mist p-3">
+          <p class="font-display uppercase text-xs text-royal mb-1.5">${esc(shop.name)}</p>
           ${lines
             .map((l) => {
               const { item } = findItem(l.shop_id, l.item_id);
-              return `<p class="flex justify-between text-slate-300"><span>${l.quantity}× ${esc(item.name)}</span><span>${money(item.price * l.quantity)} · ${item.prep_minutes} min</span></p>`;
+              return `<p class="flex justify-between gap-2 text-navy/80"><span>${l.quantity}× ${esc(item.name)}</span><span>${money(item.price * l.quantity)} · ${item.prep_minutes} min</span></p>`;
             })
             .join("")}
         </div>`;
@@ -152,6 +153,8 @@ async function checkout() {
     $("#tracker-view").classList.remove("hidden");
     renderCartBar();
     renderTracker(order);
+    // Scroll only the phone screen (scrollIntoView would also shift the page around the phone).
+    $("#screen").scrollTop = Math.max(0, $("#tracker-view").offsetTop - 16);
     state.pollTimer = setInterval(pollOrder, 1000);
   } catch (e) {
     alert(`Checkout failed: ${e.message}`);
@@ -196,12 +199,13 @@ function renderTracker(order) {
   const startWalking = remaining <= walk * state.secPerMin || ready;
 
   $("#tracker-view").innerHTML = `
-    <div class="text-center mb-4">
-      <p class="text-xs text-slate-400">Order ${esc(order.id)} · ${money(order.total)}</p>
-      <div class="radar my-4 flex items-center justify-center">
-        <span class="text-2xl font-bold">${ready ? "✅" : fmt(remaining)}</span>
+    <div class="text-center mb-5">
+      <p class="eyebrow text-sky">Live Sync-Prep</p>
+      <p class="text-xs text-mist/70 mt-1">Order ${esc(order.id)} · ${money(order.total)}</p>
+      <div class="radar my-5 flex items-center justify-center">
+        <span class="font-display text-3xl">${ready ? "✅" : fmt(remaining)}</span>
       </div>
-      <p class="text-sm text-cyan-300">${ready ? "Everything is ready for pickup!" : "Syncing kitchen timers so everything finishes together..."}</p>
+      <p class="text-sm text-sky">${ready ? "Everything is ready for pickup!" : "Syncing kitchen timers so everything finishes together..."}</p>
     </div>
     <div class="space-y-2 mb-4">
       ${order.sub_tickets
@@ -209,18 +213,19 @@ function renderTracker(order) {
           const label =
             t.status === "STAGED" ? `Held by AI · fires in ${fmt(t.seconds_until_fire)}` :
             t.status === "COOKING" ? `Cooking now · ${fmt(t.seconds_until_ready)} left` : "Ready ✅";
-          return `<div class="rounded-xl bg-slate-800 p-3 flex justify-between text-sm"><span>${esc(t.shop_name)}</span><span class="text-slate-300">${label}</span></div>`;
+          const tone = t.status === "STAGED" ? "text-sky" : t.status === "COOKING" ? "text-ember" : "text-mint";
+          return `<div class="rounded-2xl bg-white/5 border border-white/10 p-3 flex justify-between gap-2 text-sm"><span class="font-medium">${esc(t.shop_name)}</span><span class="${tone} text-right">${label}</span></div>`;
         })
         .join("")}
     </div>
-    <div class="rounded-2xl p-4 mb-4 ${startWalking ? "bg-green-400 text-slate-950 glow-green" : "bg-slate-800"}">
-      <p class="font-bold">${startWalking ? `🚶 Start walking now (${walk} min walk)` : "📚 Relax, we'll tell you when to walk"}</p>
+    <div class="rounded-[24px] p-4 mb-4 ${startWalking ? "bg-sky text-navy glow-sky" : "bg-royal text-cream"}">
+      <p class="font-semibold">${startWalking ? `🚶 Start walking now (${walk} min walk)` : "📚 Relax, we'll tell you when to walk"}</p>
     </div>
-    <div class="rounded-2xl bg-white text-slate-900 p-4 text-center">
+    <div class="rounded-[28px] bg-cream text-navy p-5 text-center">
       <div id="qr-canvas" class="mx-auto" style="width:128px;height:128px"></div>
-      <p class="text-xs mt-2">One code for every stall</p>
+      <p class="eyebrow text-royal mt-3">One code for every stall</p>
     </div>
-    <button id="new-order" class="mt-4 w-full py-2 text-sm text-slate-400">Start a new order</button>`;
+    <button id="new-order" class="mt-4 w-full py-2 text-sm text-mist/70">Start a new order</button>`;
 
   drawQr(order.id);
 }
@@ -233,7 +238,7 @@ function drawQr(text) {
   try {
     new QRCode(box, { text, width: 128, height: 128 });
   } catch (e) {
-    box.className = "mx-auto border-4 border-slate-900 grid place-items-center font-mono text-xs";
+    box.className = "mx-auto border-4 border-navy grid place-items-center font-mono text-xs";
     box.innerHTML = `QR<br/>${esc(text)}`;
   }
 }
@@ -253,7 +258,7 @@ function resetToCatalog() {
 async function showBreak(out, bw, label, importedBreak) {
   const recs = await api(`/timetable/recommendations?max_prep_minutes=${bw.max_prep_minutes}&class_label=${encodeURIComponent(label)}`);
   state.breakWindow = bw;
-  const colour = { SAFE: "text-green-400", TIGHT: "text-amber-300", HIGH: "text-red-400" };
+  const colour = { SAFE: "text-mint", TIGHT: "text-[#ffd27a]", HIGH: "text-ember" };
   const destination = importedBreak
     ? `${esc(importedBreak.date)}${importedBreak.next_room ? ` · Next class in ${esc(importedBreak.next_room)}` : ""} · `
     : "";
@@ -313,7 +318,7 @@ async function uploadTimetable(event) {
     label.className = "block my-2";
     label.textContent = "Choose a break";
     const select = document.createElement("select");
-    select.className = "block w-full mt-1 rounded bg-slate-900 p-2";
+    select.className = "block w-full mt-1 rounded-xl bg-navy border border-white/15 text-cream p-2";
     for (const [index, gap] of breaks.entries()) {
       const { start, end } = gap.break_window;
       select.add(new Option(`${gap.date} · ${start}–${end}`, index));
@@ -399,9 +404,9 @@ async function init() {
     renderShops();
   } catch (e) {
     $("#shops").innerHTML = `
-      <div class="text-center text-sm text-slate-400 py-8">
+      <div class="text-center text-sm text-mist/70 py-8">
         <p class="mb-3">Couldn't load the menu. Check your connection and try again.</p>
-        <button id="retry-init" class="px-4 py-2 rounded-lg bg-cyan-500 text-slate-950 font-semibold">Retry</button>
+        <button id="retry-init" class="px-5 py-2 rounded-full bg-sky text-navy font-semibold">Retry</button>
       </div>`;
     $("#retry-init").addEventListener("click", init);
   }

@@ -2,80 +2,137 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a1f4f" />
   <title>SyncFlow · Student</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/assets/js/theme.js?v=4"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <link rel="stylesheet" href="/assets/css/custom.css" />
+  <link rel="stylesheet" href="/assets/css/custom.css?v=4" />
 </head>
-<body class="bg-slate-900 text-slate-100">
-  <div class="phone-frame relative pb-28">
-    <header class="px-5 pt-6 pb-3">
-      <p class="text-xs text-slate-400">Good afternoon 👋</p>
-      <h1 class="text-xl font-bold">Sync<span class="text-cyan-400">Flow</span> Campus</h1>
-    </header>
+<body class="bg-navy text-cream">
+  <div class="stage">
+    <!-- Deck-style background shapes (only visible around the phone on bigger screens) -->
+    <div class="blob blob-slab" style="width:520px;height:620px;top:-120px;right:-140px;"></div>
+    <div class="blob blob-circle" style="width:460px;height:460px;bottom:-200px;left:-140px;"></div>
+    <div class="blob blob-dot" style="width:64px;height:64px;top:38%;right:9%;"></div>
+    <div class="blob blob-dot opacity-60" style="width:22px;height:22px;top:16%;left:42%;"></div>
 
-    <!-- Sync My Schedule widget (Person 3) -->
-    <section class="mx-4 mb-4 p-4 rounded-2xl bg-slate-800/70 border border-slate-700">
-      <div class="flex items-center justify-between mb-2">
-        <h2 class="font-semibold text-sm">📅 Sync My Schedule</h2>
-        <button id="load-sample" class="text-xs text-cyan-400 hover:underline">Load Replacement Class Notice</button>
-      </div>
-      <textarea id="notice" rows="3" placeholder="Paste a class or replacement-class announcement..."
-        class="w-full text-sm rounded-lg bg-slate-900 border border-slate-700 p-2 focus:outline-none focus:border-cyan-500"></textarea>
-      <button id="parse-btn" class="mt-2 w-full py-2 rounded-lg bg-cyan-500 text-slate-950 text-sm font-semibold">Find my break window</button>
-      <form id="timetable-upload" class="mt-3 border-t border-slate-700 pt-3">
-        <label for="timetable-file" class="block text-xs font-semibold">School timetable (PDF, PNG, or JPG)</label>
-        <input id="timetable-file" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" required
-          class="mt-1 w-full text-xs text-slate-300" />
-        <button id="upload-timetable-btn" type="submit" class="mt-2 w-full py-2 rounded-lg border border-cyan-500 text-cyan-300 text-sm font-semibold">Upload timetable</button>
-      </form>
-      <div id="gap-result" class="mt-3 text-sm hidden" aria-live="polite"></div>    </section>
-
-    <!-- Category filter + shop catalog (Person 2) -->
-    <section id="catalog-view">
-      <div id="order-notice" class="hidden mx-4 mb-3 rounded-xl bg-amber-400/15 border border-amber-400/40 text-amber-200 text-sm p-3" role="status"></div>
-      <div id="filters" class="flex gap-2 px-4 mb-3 overflow-x-auto text-xs"></div>
-      <div id="shops" class="px-4 space-y-4"></div>
-    </section>
-
-    <!-- Live Sync-Prep radar (shown after checkout) -->
-    <section id="tracker-view" class="hidden px-4 fade-in"></section>
-
-    <!-- Floating global cart bar -->
-    <button id="cart-bar" class="hidden absolute bottom-4 left-4 right-4 py-3 px-4 rounded-2xl bg-cyan-500 text-slate-950 font-semibold flex justify-between glow-cyan">
-      <span id="cart-count">0 items</span><span id="cart-total">$0.00</span>
-    </button>
-
-    <!-- Cart drawer -->
-    <div id="cart-drawer" class="hidden absolute inset-0 bg-black/60 flex items-end">
-      <div class="w-full bg-slate-900 rounded-t-3xl p-5 max-h-[80%] overflow-y-auto fade-in">
-        <div class="flex justify-between items-center mb-3">
-          <h2 class="font-bold">Your cart</h2>
-          <button id="close-cart" class="text-slate-400">✕</button>
+    <!-- Hero beside the phone (large screens only) -->
+    <aside class="hidden lg:block relative z-10 max-w-md">
+      <p class="text-sky text-sm mb-6">Problem Statement 02 · Intelligent Automation &amp; Digital Transformation</p>
+      <h1 class="font-display leading-[0.9] text-[7rem] tracking-tight">SYNC<br /><span class="text-sky">FLOW</span></h1>
+      <p class="mt-6 text-xl">Smart campus queues, synchronized to your schedule.</p>
+      <div class="mt-10 grid gap-3">
+        <div class="rounded-2xl bg-mist text-navy px-5 py-3">
+          <p class="eyebrow text-royal">01 · Global Multi-Shop Cart</p>
+          <p class="text-sm mt-0.5">Order from different stalls with one checkout.</p>
         </div>
-        <div id="cart-lines" class="space-y-3 text-sm"></div>
-        <button id="checkout-btn" class="mt-4 w-full py-3 rounded-xl bg-green-400 text-slate-950 font-bold">Campus Pay · Checkout</button>
+        <div class="rounded-2xl bg-mist text-navy px-5 py-3">
+          <p class="eyebrow text-royal">02 · Sync-Fire JIT Engine</p>
+          <p class="text-sm mt-0.5">The drink brews the minute your food finishes.</p>
+        </div>
+        <div class="rounded-2xl bg-mist text-navy px-5 py-3">
+          <p class="eyebrow text-royal">03 · Class-to-Counter</p>
+          <p class="text-sm mt-0.5">Upload your timetable, we find the break.</p>
+        </div>
       </div>
-    </div>
+      <p class="eyebrow mt-10 text-mist/70">Presented by Team ICEMAN</p>
+    </aside>
 
-    <!-- Student identity modal -->
-    <div id="identity-modal" class="hidden absolute inset-0 bg-black/60 flex items-center justify-center p-6 z-10">
-      <div class="w-full bg-slate-900 rounded-2xl p-5 fade-in">
-        <h2 class="font-bold mb-3">Confirm your details</h2>
-          <label class="block text-xs text-slate-400 mb-1">Full name</label>
-          <input id="student-name-input" type="text" placeholder="e.g. Eashwar Singh"
-            class="w-full mb-3 text-sm rounded-lg bg-slate-800 border border-slate-700 p-2 focus:outline-none focus:border-cyan-500" />
-          <label class="block text-xs text-slate-400 mb-1">Student ID</label>
-          <input id="student-id-input" type="text" placeholder="e.g. A21CS0142"
-            class="w-full mb-4 text-sm rounded-lg bg-slate-800 border border-slate-700 p-2 focus:outline-none focus:border-cyan-500" />
-          <div class="flex gap-2">
-            <button id="identity-cancel" class="flex-1 py-2 rounded-lg bg-slate-800 text-sm disabled:opacity-50">Cancel</button>
-            <button id="identity-confirm" class="flex-1 py-2 rounded-lg bg-green-400 text-slate-950 font-semibold text-sm disabled:opacity-60">Confirm & Pay</button>
+    <div class="phone">
+      <div class="phone-screen" id="screen">
+        <div class="status-bar" aria-hidden="true">
+          <span>9:41</span>
+          <span class="flex items-center gap-1.5 text-[0.7rem]">
+            <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+            <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="0.5" y="0.5" width="21" height="10" rx="3" stroke="currentColor" opacity="0.5"/><rect x="2" y="2" width="16" height="7" rx="1.5" fill="currentColor"/><rect x="22.5" y="3.5" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.5"/></svg>
+          </span>
+        </div>
+
+        <div class="relative pb-32">
+          <!-- Header -->
+          <header class="relative px-5 pt-5 pb-6 overflow-hidden">
+            <div class="absolute -top-24 -right-20 w-56 h-56 rounded-[60px] bg-royal"></div>
+            <div class="absolute top-20 right-12 w-7 h-7 rounded-full bg-sky"></div>
+            <p class="relative text-xs text-sky">Good afternoon 👋</p>
+            <h1 class="relative font-display text-[2.6rem] leading-[0.95] tracking-tight mt-1">SYNC<br /><span class="text-sky">FLOW</span></h1>
+            <p class="relative text-xs text-mist/80 mt-3 max-w-[15rem]">Smart campus queues, synchronized to your schedule.</p>
+          </header>
+
+          <!-- Sync My Schedule widget (Person 3) -->
+          <section class="relative mx-4 mb-5 p-4 rounded-[28px] bg-royal">
+            <div class="flex items-center justify-between mb-3 gap-2">
+              <h2 class="eyebrow text-cream">📅 Sync my schedule</h2>
+              <button id="load-sample" class="text-[0.7rem] text-sky font-medium hover:underline text-right">Load Replacement Class Notice</button>
+            </div>
+            <textarea id="notice" rows="3" placeholder="Paste a class or replacement-class announcement..."
+              class="w-full text-sm rounded-2xl bg-navy/60 border border-white/10 text-cream placeholder:text-mist/50 p-3 focus:outline-none focus:border-sky"></textarea>
+            <button id="parse-btn" class="mt-2 w-full py-2.5 rounded-full bg-sky text-navy text-sm font-semibold disabled:opacity-60">Find my break window</button>
+            <form id="timetable-upload" class="mt-4 border-t border-white/15 pt-4">
+              <label for="timetable-file" class="block eyebrow text-cream/90 mb-2">School timetable (PDF, PNG, JPG)</label>
+              <input id="timetable-file" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" required
+                class="w-full text-xs text-mist/80" />
+              <button id="upload-timetable-btn" type="submit" class="mt-3 w-full py-2.5 rounded-full border-2 border-sky text-sky text-sm font-semibold disabled:opacity-60">Upload timetable</button>
+            </form>
+            <div id="gap-result" class="mt-4 text-sm text-cream hidden rounded-2xl bg-navy/50 p-3" aria-live="polite"></div>
+          </section>
+
+          <!-- Category filter + shop catalog (Person 2) -->
+          <section id="catalog-view">
+            <div id="order-notice" class="hidden mx-4 mb-3 rounded-2xl bg-ember/15 border border-ember/50 text-[#ffd3bb] text-sm p-3" role="status"></div>
+            <div class="flex items-baseline justify-between px-5 mb-3">
+              <h2 class="eyebrow text-cream">Campus stalls</h2>
+              <span class="text-[0.7rem] text-mist/60">One cart · every stall</span>
+            </div>
+            <div id="filters" class="flex gap-2 px-4 mb-4 overflow-x-auto text-xs"></div>
+            <div id="shops" class="px-4 space-y-4"></div>
+          </section>
+
+          <!-- Live Sync-Prep radar (shown after checkout) -->
+          <section id="tracker-view" class="hidden px-4 fade-in"></section>
+        </div>
+      </div>
+
+      <!-- Floating global cart bar (outside the scroller so it stays put) -->
+      <button id="cart-bar" class="hidden absolute bottom-5 left-4 right-4 z-20 py-3.5 px-5 rounded-full bg-sky text-navy font-semibold flex justify-between items-center glow-sky">
+        <span id="cart-count">0 items</span><span id="cart-total" class="font-display">$0.00</span>
+      </button>
+
+      <!-- Cart drawer -->
+      <div id="cart-drawer" class="hidden absolute inset-0 z-30 bg-navy-deep/70 backdrop-blur-[2px] flex items-end">
+        <div class="w-full bg-cream text-navy rounded-t-[32px] p-5 pb-7 max-h-[80%] overflow-y-auto fade-in">
+          <div class="mx-auto w-10 h-1.5 rounded-full bg-navy/15 mb-4"></div>
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="font-display text-lg uppercase">Your cart</h2>
+            <button id="close-cart" class="w-8 h-8 rounded-full bg-mist text-navy/70">✕</button>
           </div>
+          <div id="cart-lines" class="space-y-3 text-sm"></div>
+          <button id="checkout-btn" class="mt-5 w-full py-3.5 rounded-full bg-royal text-white font-semibold disabled:opacity-60">Campus Pay · Checkout</button>
+        </div>
+      </div>
+
+      <!-- Student identity modal -->
+      <div id="identity-modal" class="hidden absolute inset-0 z-40 bg-navy-deep/70 backdrop-blur-[2px] flex items-center justify-center p-6">
+        <div class="w-full bg-cream text-navy rounded-[28px] p-5 fade-in">
+          <h2 class="font-display uppercase text-royal mb-4">Confirm your details</h2>
+          <label class="block text-xs font-medium text-navy/60 mb-1">Full name</label>
+          <input id="student-name-input" type="text" placeholder="e.g. Eashwar Singh"
+            class="w-full mb-3 text-sm rounded-xl bg-white border border-navy/15 p-2.5 focus:outline-none focus:border-royal" />
+          <label class="block text-xs font-medium text-navy/60 mb-1">Student ID</label>
+          <input id="student-id-input" type="text" placeholder="e.g. A21CS0142"
+            class="w-full mb-5 text-sm rounded-xl bg-white border border-navy/15 p-2.5 focus:outline-none focus:border-royal" />
+          <div class="flex gap-2">
+            <button id="identity-cancel" class="flex-1 py-2.5 rounded-full bg-mist text-navy text-sm font-medium disabled:opacity-50">Cancel</button>
+            <button id="identity-confirm" class="flex-1 py-2.5 rounded-full bg-royal text-white font-semibold text-sm disabled:opacity-60">Confirm &amp; Pay</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <script src="/student/app.js"></script>
+  <script src="/student/app.js?v=4"></script>
 </body>
 </html>

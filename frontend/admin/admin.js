@@ -22,8 +22,8 @@ async function api(path, options = {}) {
 // Short status line under the header: kind = "ok" | "info" | "error".
 function notify(msg, kind = "ok") {
   const el = $("#admin-msg");
-  const styles = { ok: "bg-green-500/15 text-green-300", info: "bg-slate-800 text-slate-300", error: "bg-red-500/20 text-red-300" };
-  el.className = `mx-5 mt-3 px-3 py-2 rounded text-sm ${styles[kind]}`;
+  const styles = { ok: "bg-mint/15 text-mint", info: "bg-white/5 text-mist", error: "bg-ember/20 text-ember" };
+  el.className = `relative z-10 mx-6 mb-3 px-4 py-2 rounded-2xl text-sm ${styles[kind]}`;
   el.textContent = msg;
   clearTimeout(notify.timer);
   notify.timer = setTimeout(() => el.classList.add("hidden"), 4000);
@@ -45,15 +45,15 @@ async function withBusy(btn, fn) {
 const counterId = () => $("#counter").value;
 
 const STATUS_STYLE = {
-  WAITING: "text-slate-400",
-  CALLED: "text-amber-300",
-  IN_SERVICE: "text-cyan-300",
-  COMPLETED: "text-green-400",
+  WAITING: "bg-navy/10 text-navy/70",
+  CALLED: "bg-ember/25 text-[#b4471a]",
+  IN_SERVICE: "bg-royal/15 text-royal",
+  COMPLETED: "bg-mint/30 text-emerald-800",
 };
 
 function actionsFor(t) {
-  if (t.status === "CALLED") return `<button data-act="${esc(t.id)}|IN_SERVICE" class="px-2 py-1 rounded bg-cyan-600 hover:bg-cyan-500 text-xs disabled:opacity-50">Start service</button>`;
-  if (t.status === "IN_SERVICE") return `<button data-act="${esc(t.id)}|COMPLETED" class="px-2 py-1 rounded bg-green-500 hover:bg-green-400 text-slate-950 text-xs font-semibold disabled:opacity-50">Mark Complete</button>`;
+  if (t.status === "CALLED") return `<button data-act="${esc(t.id)}|IN_SERVICE" class="px-3 py-1.5 rounded-full bg-royal hover:bg-navy-2 text-white text-xs font-semibold whitespace-nowrap disabled:opacity-50">Start service</button>`;
+  if (t.status === "IN_SERVICE") return `<button data-act="${esc(t.id)}|COMPLETED" class="px-3 py-1.5 rounded-full bg-mint text-navy text-xs font-semibold whitespace-nowrap disabled:opacity-50">Mark Complete</button>`;
   return "";
 }
 
@@ -72,16 +72,16 @@ async function refresh() {
   const html = tickets
     .map(
       (t) => `
-      <tr class="border-t border-slate-800 ${t.status === "COMPLETED" ? "opacity-50" : ""}">
-        <td class="py-2 font-mono font-bold">${esc(t.number)}</td>
-        <td>${esc(t.student_name)}</td>
-        <td class="font-mono">${esc(t.matric_no)}</td>
-        <td><span class="text-slate-300">${esc(t.option_name)}</span><br/><span class="text-xs text-slate-500">${esc(t.inquiry)}</span></td>
-        <td class="${STATUS_STYLE[t.status]}">${t.status.replace("_", " ")}</td>
+      <tr class="border-t border-navy/10 ${t.status === "COMPLETED" ? "opacity-50" : ""}">
+        <td class="py-3 font-display text-royal">${esc(t.number)}</td>
+        <td class="font-medium">${esc(t.student_name)}</td>
+        <td class="font-mono text-navy/70">${esc(t.matric_no)}</td>
+        <td><span>${esc(t.option_name)}</span><br/><span class="text-xs text-navy/50">${esc(t.inquiry)}</span></td>
+        <td><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${STATUS_STYLE[t.status]}">${t.status.replace("_", " ")}</span></td>
         <td class="text-right">${actionsFor(t)}</td>
       </tr>`
     )
-    .join("") || `<tr><td colspan="6" class="py-6 text-center text-slate-500">No tickets at this counter yet</td></tr>`;
+    .join("") || `<tr><td colspan="6" class="py-6 text-center text-navy/50">No tickets at this counter yet</td></tr>`;
   // Only touch the table when something changed, so the 2 s poll can't swallow a button click.
   if (html !== refresh.lastHtml) {
     $("#queue").innerHTML = html;

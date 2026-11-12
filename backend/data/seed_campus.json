@@ -11,7 +11,7 @@
       "category": "Food",
       "prep_range_minutes": [12, 15],
       "walk_minutes": 4,
-      "image": null,
+      "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&auto=format&fit=crop",
       "menu": [
         { "id": "tb-teriyaki", "name": "Teriyaki Chicken Rice Bowl", "price": 6.50, "prep_minutes": 14, "category": "Food", "image": "https://images.unsplash.com/photo-1771384552858-feb0574f958d?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" },
         { "id": "tb-salmon",   "name": "Salmon Sashimi Don",          "price": 8.50, "prep_minutes": 12, "category": "Food", "image": "https://images.unsplash.com/photo-1775889184907-36742cafb945?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" },
@@ -25,7 +25,7 @@
       "category": "Coffee",
       "prep_range_minutes": [2, 4],
       "walk_minutes": 2,
-      "image": null,
+      "image": "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=400&auto=format&fit=crop",
       "menu": [
         { "id": "bl-spanish-latte", "name": "Iced Spanish Latte",     "price": 4.20, "prep_minutes": 3, "category": "Coffee", "image": "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"},
         { "id": "bl-matcha-cloud",  "name": "Matcha Cloud Cold Brew", "price": 4.80, "prep_minutes": 3, "category": "Coffee", "image": "https://images.unsplash.com/photo-1592284441621-581ebd2e677d?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" },
@@ -39,7 +39,7 @@
       "category": "Food",
       "prep_range_minutes": [5, 7],
       "walk_minutes": 3,
-      "image": null,
+      "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&auto=format&fit=crop",
       "menu": [
         { "id": "gg-caesar-wrap", "name": "Grilled Chicken Caesar Wrap", "price": 5.50, "prep_minutes": 6, "category": "Food", "image": "https://images.unsplash.com/photo-1666819615040-eff5e52c778a?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"},
         { "id": "gg-quinoa-bowl", "name": "Quinoa Protein Bowl",         "price": 6.20, "prep_minutes": 7, "category": "Food", "image": "https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" }
