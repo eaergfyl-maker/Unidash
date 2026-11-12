@@ -10,6 +10,17 @@ One campus app for every queue:
 
 > **Note on Campus Data:** All food stalls (`Tokyo Bento Bowl`, `BrewLab Artisan Coffee`, `Green Garden Salad & Wraps`), menu items, prices, and locations in `backend/data/seed_campus.json` are temporary placeholders for development and demo purposes, and will be replaced with real campus vendors upon onboarding.
 
+## Live Demo
+🌐 **Public Deployment:** [https://unidash-uflg.onrender.com/](https://unidash-uflg.onrender.com/)
+
+| Page | Live URL | Local URL |
+| :--- | :--- | :--- |
+| Presentation hub (split screen) | [Open Live Hub](https://unidash-uflg.onrender.com/) | `http://localhost:8000/` |
+| Student app | [Open Student App](https://unidash-uflg.onrender.com/student/) | `http://localhost:8000/student/` |
+| Vendor kitchen display | [Open Vendor KDS](https://unidash-uflg.onrender.com/vendor/) | `http://localhost:8000/vendor/` |
+| Admin / helpdesk desk | [Open Admin Desk](https://unidash-uflg.onrender.com/admin/) | `http://localhost:8000/admin/` |
+| API docs (Swagger) | [Open Swagger Docs](https://unidash-uflg.onrender.com/docs) | `http://localhost:8000/docs` |
+
 ## Quick start
 
 Requires Python 3.13.
@@ -22,14 +33,6 @@ python run.py
 PNG and JPG timetable uploads require Tesseract OCR on the machine running
 the server. Make sure `tesseract --version` works in the same terminal you
 use to start the server. PDF timetable uploads work without Tesseract.
-
-| Page | URL |
-| :--- | :--- |
-| Presentation hub (split screen) | http://localhost:8000/ |
-| Student app | http://localhost:8000/student/ |
-| Vendor kitchen display | http://localhost:8000/vendor/ |
-| Admin / helpdesk desk | http://localhost:8000/admin/ |
-| API docs (Swagger) | http://localhost:8000/docs |
 
 ### Settings (environment variables)
 
