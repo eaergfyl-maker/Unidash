@@ -4,46 +4,65 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SyncFlow · Admin Desk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="/assets/css/custom.css" />
+  <script src="/assets/js/theme.js?v=4"></script>
+  <link rel="stylesheet" href="/assets/css/custom.css?v=4" />
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen">
-  <header class="flex items-center justify-between px-5 py-3 border-b border-slate-800">
-    <h1 class="font-bold">🏛️ University Service Desk <span class="text-xs text-slate-400 font-normal">Virtual queue terminal</span></h1>
-    <select id="counter" class="bg-slate-800 rounded px-3 py-1.5 text-sm"></select>
+<body class="bg-navy text-cream min-h-screen relative overflow-x-hidden">
+  <div class="blob blob-slab opacity-30" style="width:560px;height:520px;top:-260px;right:-180px;"></div>
+  <div class="blob blob-dot" style="width:46px;height:46px;top:150px;right:7%;"></div>
+  <div class="blob blob-circle" style="width:480px;height:480px;bottom:-240px;left:-180px;position:fixed;"></div>
+
+  <header class="relative z-10 flex flex-wrap items-center justify-between gap-3 px-6 pt-6 pb-4">
+    <div>
+      <p class="eyebrow text-sky">Campus-wide queue engine</p>
+      <h1 class="font-display uppercase text-3xl tracking-tight mt-1">Service <span class="text-sky">Desk</span></h1>
+      <p class="text-xs text-mist/70 mt-1">Virtual queue terminal · Academic Admin &amp; IT Helpdesk</p>
+    </div>
+    <select id="counter" class="bg-navy-2 border border-white/15 rounded-full px-4 py-2 text-sm text-cream focus:outline-none focus:border-sky"></select>
   </header>
   <div id="admin-msg" class="hidden" role="status" aria-live="polite"></div>
 
-  <main class="grid lg:grid-cols-[1fr_340px] gap-4 p-5">
-    <section>
-      <div class="flex items-center gap-4 mb-4">
-        <div class="rounded-2xl bg-slate-800 px-6 py-4 glow-cyan">
-          <p class="text-xs text-slate-400">Now serving</p>
-          <p id="now-serving" class="text-4xl font-bold text-cyan-300">--</p>
+  <main class="relative z-10 grid lg:grid-cols-[1fr_360px] gap-5 px-6 pb-8 pt-2">
+    <section class="min-w-0">
+      <div class="flex flex-wrap items-center gap-5 mb-5">
+        <div class="w-40 h-40 rounded-full bg-cream text-royal flex flex-col items-center justify-center text-center shadow-2xl">
+          <p class="eyebrow text-[0.6rem] text-navy/60">Now serving</p>
+          <p id="now-serving" class="font-display text-3xl mt-1">--</p>
         </div>
-        <button id="call-next" class="px-5 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold disabled:opacity-50">Call Next Ticket</button>
-        <span id="waiting-count" class="text-sm text-slate-400">0 waiting</span>
+        <div class="flex flex-col gap-3">
+          <button id="call-next" class="px-7 py-3.5 rounded-full bg-sky hover:bg-[#9fe0ff] text-navy font-display uppercase tracking-wide glow-sky disabled:opacity-50">Call next ticket</button>
+          <span id="waiting-count" class="text-sm text-mist/80 pl-2">0 waiting</span>
+        </div>
       </div>
-      <table class="w-full text-sm">
-        <thead class="text-left text-xs uppercase text-slate-400">
-          <tr><th class="py-2">Ticket</th><th>Student</th><th>Matric no.</th><th>Inquiry</th><th>Status</th><th></th></tr>
-        </thead>
-        <tbody id="queue"></tbody>
-      </table>
+
+      <div class="rounded-[28px] bg-cream text-navy p-5 overflow-x-auto">
+        <h2 class="font-display uppercase text-royal mb-3">Live queue</h2>
+        <table class="w-full text-sm min-w-[560px]">
+          <thead class="text-left eyebrow text-navy/50">
+            <tr><th class="py-2">Ticket</th><th>Student</th><th>Matric no.</th><th>Inquiry</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="queue"></tbody>
+        </table>
+      </div>
     </section>
 
     <!-- Walk-in / student join form -->
-    <aside class="rounded-2xl bg-slate-900 border border-slate-800 p-4 h-fit">
-      <h2 class="font-semibold mb-3">Add student to queue</h2>
-      <form id="join-form" class="space-y-2 text-sm">
-        <select name="option_id" id="option" class="w-full bg-slate-800 rounded px-3 py-2"></select>
-        <input name="student_name" required placeholder="Student name" class="w-full bg-slate-800 rounded px-3 py-2" />
-        <input name="matric_no" required placeholder="Matric no." class="w-full bg-slate-800 rounded px-3 py-2" />
-        <input name="inquiry" placeholder="Inquiry (optional)" class="w-full bg-slate-800 rounded px-3 py-2" />
-        <button type="submit" class="w-full py-2 rounded bg-slate-700 hover:bg-slate-600 font-semibold disabled:opacity-50">Join queue</button>
+    <aside class="rounded-[28px] bg-royal p-5 h-fit">
+      <h2 class="font-display uppercase mb-1">Add student</h2>
+      <p class="text-xs text-mist/80 mb-4">Walk-in or phone-in, same queue.</p>
+      <form id="join-form" class="space-y-2.5 text-sm">
+        <select name="option_id" id="option" class="w-full bg-navy/50 border border-white/15 rounded-xl px-3 py-2.5 text-cream focus:outline-none focus:border-sky"></select>
+        <input name="student_name" required placeholder="Student name" class="w-full bg-navy/50 border border-white/15 rounded-xl px-3 py-2.5 text-cream placeholder:text-mist/50 focus:outline-none focus:border-sky" />
+        <input name="matric_no" required placeholder="Matric no." class="w-full bg-navy/50 border border-white/15 rounded-xl px-3 py-2.5 text-cream placeholder:text-mist/50 focus:outline-none focus:border-sky" />
+        <input name="inquiry" placeholder="Inquiry (optional)" class="w-full bg-navy/50 border border-white/15 rounded-xl px-3 py-2.5 text-cream placeholder:text-mist/50 focus:outline-none focus:border-sky" />
+        <button type="submit" class="w-full mt-1 py-2.5 rounded-full bg-sky text-navy font-semibold disabled:opacity-50">Join queue</button>
       </form>
     </aside>
   </main>
-  <script src="/admin/admin.js"></script>
+  <script src="/admin/admin.js?v=4"></script>
 </body>
 </html>

@@ -50,7 +50,7 @@ function chime() {
 function renderSoundButton() {
   const btn = $("#sound-btn");
   btn.textContent = soundOn ? "🔔 Sound on" : "🔕 Tap for sound";
-  btn.className = `px-2 py-1 rounded text-xs ${soundOn ? "bg-slate-800 text-slate-300" : "bg-amber-400/20 text-amber-300"}`;
+  btn.className = `px-3 py-1 rounded-full text-xs whitespace-nowrap ${soundOn ? "bg-white/5 text-mist/80" : "bg-ember/20 text-ember"}`;
 }
 
 // ---------- api ----------
@@ -79,11 +79,11 @@ function showError(msg) {
 function renderTabs() {
   const shop = shops.find((s) => s.id === currentShop);
   if (embedded) {
-    $("#tabs").innerHTML = `<span class="px-3 py-1 rounded bg-cyan-500 text-slate-950 font-semibold">${esc(shop?.name)}</span>`;
+    $("#tabs").innerHTML = `<span class="px-3 py-1 rounded-full bg-sky text-navy font-semibold whitespace-nowrap">${esc(shop?.name)}</span>`;
     return;
   }
   $("#tabs").innerHTML = shops
-    .map((s, i) => `<button data-shop="${esc(s.id)}" class="px-3 py-1 rounded ${s.id === currentShop ? "bg-cyan-500 text-slate-950 font-semibold" : "bg-slate-800 hover:bg-slate-700"}">Stall ${String.fromCharCode(65 + i)} · ${esc(s.name)}</button>`)
+    .map((s, i) => `<button data-shop="${esc(s.id)}" class="px-3 py-1 rounded-full whitespace-nowrap ${s.id === currentShop ? "bg-sky text-navy font-semibold" : "bg-white/5 text-mist hover:bg-white/10"}">Stall ${String.fromCharCode(65 + i)} · ${esc(s.name)}</button>`)
     .join("");
 }
 
@@ -93,28 +93,28 @@ function ticketCard(t, isNew) {
   const justFired = t.status === "COOKING" && firedAt.has(t.id) && Date.now() - firedAt.get(t.id) < FIRE_HIGHLIGHT_MS;
   let badge = "";
   let action = "";
-  let border = "border-slate-700";
+  let border = "border-transparent";
   if (t.status === "STAGED") {
-    badge = `<span class="text-xs px-2 py-0.5 rounded bg-amber-400/20 text-amber-300">Held by AI · firing in <span data-timer="${esc(t.id)}">${fmt(t.seconds_until_fire)}</span></span>`;
-    border = "border-amber-400/30";
-    action = `<button data-cook="${esc(t.id)}" ${busy ? "disabled" : ""} class="mt-2 w-full py-1.5 rounded bg-amber-400 text-slate-950 text-sm font-semibold disabled:opacity-50">${busy ? "Saving..." : "Cook now"}</button>`;
+    badge = `<span class="inline-block text-xs px-2.5 py-0.5 rounded-full bg-sky/40 text-royal font-semibold">Held by AI · firing in <span data-timer="${esc(t.id)}">${fmt(t.seconds_until_fire)}</span></span>`;
+    border = "border-sky";
+    action = `<button data-cook="${esc(t.id)}" ${busy ? "disabled" : ""} class="mt-3 w-full py-2 rounded-full bg-royal hover:bg-navy-2 text-white text-sm font-semibold disabled:opacity-50">${busy ? "Saving..." : "Cook now"}</button>`;
   } else if (t.status === "COOKING") {
-    badge = `<span class="cook-now text-xs px-2 py-0.5 rounded bg-red-500 text-white font-bold">COOK NOW</span>
-             <span class="text-xs text-slate-400 ml-1"><span data-timer="${esc(t.id)}">${fmt(t.seconds_until_ready)}</span> to sync point</span>`;
-    action = `<button data-ready="${esc(t.id)}" ${busy ? "disabled" : ""} class="mt-2 w-full py-1.5 rounded bg-green-400 text-slate-950 text-sm font-semibold disabled:opacity-50">${busy ? "Saving..." : "Mark as Ready"}</button>`;
-    border = "border-red-500/50";
+    badge = `<span class="cook-now inline-block font-display text-xs px-2.5 py-0.5 rounded-full bg-ember text-white">COOK NOW</span>
+             <span class="text-xs text-navy/60 ml-1"><span data-timer="${esc(t.id)}">${fmt(t.seconds_until_ready)}</span> to sync point</span>`;
+    action = `<button data-ready="${esc(t.id)}" ${busy ? "disabled" : ""} class="mt-3 w-full py-2 rounded-full bg-mint text-navy text-sm font-semibold disabled:opacity-50">${busy ? "Saving..." : "Mark as Ready"}</button>`;
+    border = "border-ember";
   } else {
-    badge = `<span class="text-xs px-2 py-0.5 rounded bg-green-400/20 text-green-300">Waiting for pickup</span>`;
-    action = `<button data-collected="${esc(t.id)}" ${busy ? "disabled" : ""} class="mt-2 w-full py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-sm disabled:opacity-50">${busy ? "Saving..." : "Collected"}</button>`;
-    border = "border-green-400/40";
+    badge = `<span class="inline-block text-xs px-2.5 py-0.5 rounded-full bg-mint/30 text-emerald-800 font-semibold">Waiting for pickup</span>`;
+    action = `<button data-collected="${esc(t.id)}" ${busy ? "disabled" : ""} class="mt-3 w-full py-2 rounded-full bg-navy hover:bg-navy-2 text-cream text-sm font-medium disabled:opacity-50">${busy ? "Saving..." : "Collected"}</button>`;
+    border = "border-mint";
   }
-  const classes = ["rounded-xl bg-slate-800 border p-3", border];
+  const classes = ["rounded-[20px] bg-cream text-navy border-2 p-3.5", border];
   if (isNew) classes.push("fade-in");
   if (justFired) classes.push("just-fired");
   return `
     <div data-ticket="${esc(t.id)}" class="${classes.join(" ")}">
-      <div class="flex justify-between text-sm font-semibold"><span>${esc(t.order_id)}</span><span class="text-slate-400">${esc(t.id)}</span></div>
-      <ul class="text-sm text-slate-300 my-2">${lines}</ul>
+      <div class="flex justify-between items-baseline text-sm"><span class="font-display">${esc(t.order_id)}</span><span class="text-xs text-navy/50">${esc(t.id)}</span></div>
+      <ul class="text-sm text-navy/80 my-2">${lines}</ul>
       ${badge}${action}
     </div>`;
 }
@@ -156,7 +156,7 @@ async function refresh() {
       // Only animate cards that just entered this column.
       $(`#col-${col}`).innerHTML = list.length
         ? list.map((t) => ticketCard(t, lastStatus?.get(t.id) !== col)).join("")
-        : `<p class="text-xs text-slate-600">No tickets</p>`;
+        : `<p class="text-xs text-mist/40">No tickets</p>`;
       colSignature[col] = signature;
     }
     $(`#count-${col}`).textContent = list.length;

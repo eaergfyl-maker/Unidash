@@ -4,35 +4,45 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SyncFlow · Kitchen Display</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="/assets/css/custom.css" />
+  <script src="/assets/js/theme.js?v=4"></script>
+  <link rel="stylesheet" href="/assets/css/custom.css?v=4" />
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
-  <header id="kds-header" class="flex items-center justify-between gap-3 px-4 py-2 border-b border-slate-800">
-    <h1 class="font-bold whitespace-nowrap">🍳 Kitchen Display <span class="kds-subtitle text-xs text-slate-400 font-normal">Sync-Fire KDS</span></h1>
+<body class="bg-navy text-cream min-h-screen flex flex-col relative overflow-x-hidden">
+  <div class="blob blob-circle kds-blob" style="width:420px;height:420px;bottom:-220px;left:-160px;"></div>
+  <div class="blob blob-slab kds-blob opacity-40" style="width:360px;height:360px;top:-240px;right:-120px;"></div>
+
+  <header id="kds-header" class="relative z-10 flex items-center justify-between gap-3 px-5 py-3">
+    <div class="flex items-baseline gap-3 whitespace-nowrap">
+      <h1 class="font-display uppercase text-lg tracking-tight">Kitchen <span class="text-sky">Display</span></h1>
+      <span class="kds-subtitle eyebrow text-mist/60">Sync-Fire KDS</span>
+    </div>
     <div class="flex items-center gap-2 min-w-0">
       <nav id="tabs" class="flex gap-2 text-sm overflow-x-auto"></nav>
-      <button id="sound-btn" type="button" class="px-2 py-1 rounded text-xs"></button>
-      <button id="reset-demo" type="button" class="px-2 py-1 rounded text-xs bg-slate-800 text-slate-500 hover:bg-red-600 hover:text-white">Reset demo</button>
+      <button id="sound-btn" type="button" class="px-3 py-1 rounded-full text-xs"></button>
+      <button id="reset-demo" type="button" class="px-3 py-1 rounded-full text-xs bg-white/5 text-mist/60 hover:bg-ember hover:text-navy">Reset demo</button>
     </div>
   </header>
 
-  <div id="kds-error" class="hidden mx-3 mt-2 px-3 py-2 rounded bg-red-500/20 text-red-300 text-sm" role="alert"></div>
+  <div id="kds-error" class="hidden relative z-10 mx-4 mb-2 px-4 py-2 rounded-2xl bg-ember/20 text-ember text-sm" role="alert"></div>
 
-  <main class="kds-board flex-1 grid grid-cols-3 gap-3 p-3 min-h-0">
-    <section class="kds-col flex flex-col min-h-0">
-      <h2 class="text-xs uppercase tracking-wide text-amber-300 mb-2">Staged / Held <span class="text-slate-500">(Smart Queue Delay)</span> <span id="count-STAGED" class="ml-1 px-1.5 rounded bg-amber-400/20">0</span></h2>
-      <div id="col-STAGED" class="space-y-2 overflow-y-auto"></div>
+  <main class="kds-board relative z-10 flex-1 grid grid-cols-3 gap-4 px-4 pb-4 min-h-0">
+    <section class="kds-col flex flex-col min-h-0 rounded-[28px] bg-navy-2/80 p-4">
+      <h2 class="eyebrow text-sky mb-3 flex items-center gap-2 flex-wrap">Staged / Held <span class="text-mist/50 normal-case tracking-normal font-sans font-medium">(Smart Queue Delay)</span> <span id="count-STAGED" class="px-2 rounded-full bg-sky/20">0</span></h2>
+      <div id="col-STAGED" class="space-y-3 overflow-y-auto"></div>
     </section>
-    <section class="kds-col flex flex-col min-h-0">
-      <h2 class="text-xs uppercase tracking-wide text-red-400 mb-2">Active Cooking / Prepare Now <span id="count-COOKING" class="ml-1 px-1.5 rounded bg-red-500/20">0</span></h2>
-      <div id="col-COOKING" class="space-y-2 overflow-y-auto"></div>
+    <section class="kds-col flex flex-col min-h-0 rounded-[28px] bg-navy-2/80 p-4">
+      <h2 class="eyebrow text-ember mb-3 flex items-center gap-2 flex-wrap">Cooking / Prepare now <span id="count-COOKING" class="px-2 rounded-full bg-ember/20">0</span></h2>
+      <div id="col-COOKING" class="space-y-3 overflow-y-auto"></div>
     </section>
-    <section class="kds-col flex flex-col min-h-0">
-      <h2 class="text-xs uppercase tracking-wide text-green-400 mb-2">Ready for Collection <span id="count-READY" class="ml-1 px-1.5 rounded bg-green-400/20">0</span></h2>
-      <div id="col-READY" class="space-y-2 overflow-y-auto"></div>
+    <section class="kds-col flex flex-col min-h-0 rounded-[28px] bg-navy-2/80 p-4">
+      <h2 class="eyebrow text-mint mb-3 flex items-center gap-2 flex-wrap">Ready for collection <span id="count-READY" class="px-2 rounded-full bg-mint/20">0</span></h2>
+      <div id="col-READY" class="space-y-3 overflow-y-auto"></div>
     </section>
   </main>
-  <script src="/vendor/kds.js"></script>
+  <script src="/vendor/kds.js?v=4"></script>
 </body>
 </html>
